@@ -1,16 +1,31 @@
-from maploader import load_map
+"""
+game.py
+
+Core gameplay logic for a simplified RISK-style strategy game.
+
+This module defines two main classes:
+
+    - GameState: A passive container that holds the current state of the game,
+    including territories, continents, players, turn number, and game log. It's like a snapshot of the data.
+
+    - Game: The active game engine responsible for enforcing game rules,
+    managing turn order, handling territory assignments, drafting, and combat mechanics.
+    Game owns a GameState instance, while GameState doesn't know about Game.
+
+This module assumes the existence of Player, Territory, and Continent classes
+(defined in `structures.py`).
+
+Usage:
+    game_state = GameState(territories, continents, players)
+    game = Game(game_state)
+    game.start()
+"""
+
 from structures import Territory, Continent
 import random
 
-'''
-class GameState: Passive container that holds all the current data (players, map, turn info, game log).
-class Game: Active logic engine that enforces rules, handles turn progression, attacks, reinforcements, etc.
-
-Game owns a GameState instance.
-GameState doesn't know about Game. It's just a structured data snapshot.
-'''
-
 class GameState:
+    """See above for a basic rundown."""
     def __init__(self, territories, continents, players=None):
         self.territories = territories  # list of Territory objects
         self.continents = continents    # list of Continent objects 
@@ -34,34 +49,52 @@ class GameState:
         return self.players[self.current_player_index]
     
 class Game:
+    """
+    See the top of page for a basic rundown. 
+    
+    Methods are listed in order of logical importance:
+        Setup methods:
+            def start() ...
+            def assign_starting_territories() ...
+            def assign_starting_armies() ...
+        
+        Turn-related methods: (NOT STARTED)
+            def draft() ... 
+            def attack() ... 
+            def fortify() ... 
+            def end_turn() ...
+        
+        Helper, utility, internal methods:
+            def give_territory() ...
+    """
     def __init__(self, game_state):
         self.state = game_state
 
-    def assign_starting_armies(self):
-        num_players = len(self.state.players)
-        counts = [0,0,40,35,30,25,20] # 2 player game -> each player starts with 40 troops. 6 player game -> 20 troops each.
-        start_army_count = counts[num_players]
-        for player in self.state.players:
-            player.update_army_count()
-            for _ in range(start_army_count - player.armies):
-                random.choice(player.territories).armies += 1
-            player.update_army_count()
-            self.state.log_event(str(player))
-            for t in player.territories:
-                print(f"{t.name} has {t.armies} troops.")
+    def start(self):
+        """Begins the game by assigning territories and starting armies, (will implement the start of first turn)"""
+        self.state.log_event("Game started.")
+        self.assign_starting_territories()
+        self.assign_starting_armies()
+        self.state.log_event(f"{self.state.current_player().name}'s turn begins.")
 
     def assign_starting_territories(self):
+        """
+        Randomly assigns all territories evenly among players.
+        
+        Each player gets # of territories X equal to (total # of territories // # of players).
+        For Y remainder territories, the first Y players get 1 additional territory, for a total of (X+1) territories.
+        """
         all_territories = self.state.territories.copy()
         random.shuffle(all_territories)
 
         players = self.state.players
         num_players = len(players)
         territories_per_player = len(all_territories) // num_players
-        remainder = len(all_territories) % num_players  # e.g., 42 % 5 = 2
+        remainder = len(all_territories) % num_players
 
         assignment_counts = [territories_per_player] * num_players
         for i in range(remainder):
-            assignment_counts[i] += 1  # First N players get 1 extra
+            assignment_counts[i] += 1 
 
         idx = 0
         for player_index, count in enumerate(assignment_counts):
@@ -72,42 +105,37 @@ class Game:
                 self.state.log_event(f"{player.name} received {territory.name}.")
                 idx += 1 
 
-    def attack(self, attacker, from_territory, to_territory, num_armies):
-        # TODO: Implement real combat logic
-        if from_territory.owner != attacker:
-            self.state.log_event(f"{attacker.name} cannot attack from {from_territory.name} they don't control.")
-            return False
-        if to_territory.owner == attacker:
-            self.state.log_event(f"{attacker.name} cannot attack their own territory.")
-            return False
-        self.state.log_event(f"{attacker.name} attacked {to_territory.name} from {from_territory.name} with {num_armies} armies.")
-        return True
+    def assign_starting_armies(self):
+        """
+        Distributes starting armies randomly across each player's territories.
+        
+        The number of troops each player gets at the start depends on the number of players in the game:
+            2 players -> 40 troops
+            3 players -> 35 troops
+            4 players -> 30 troops
+            5 players -> 25 troops
+            6 players -> 20 troops
+
+        Note that each terrority must contain at least 1 troop, which we account for in give_territory()
+        """
+        num_players = len(self.state.players)
+        counts = [0,0,40,35,30,25,20]
+        start_army_count = counts[num_players]
+        for player in self.state.players:
+            player.update_army_count()
+            for _ in range(start_army_count - player.armies):
+                random.choice(player.territories).armies += 1
+            player.update_army_count()
+            self.state.log_event(str(player))
 
     def give_territory(self, territory, player):
+        """Transfers ownership of a territory to a player."""
         if territory.owner: 
             territory.owner.territories.remove(territory)
         player.territories.append(territory)
         territory.owner = player
         territory.armies = 1
 
-    def draft(self, player, territory, armies):
-        if territory.owner != player:
-            self.state.log_event(f"{player.name} tried to reinforce {territory.name}, but doesn't own it.")
-            return False
-        territory.armies += armies
-        self.state.log_event(f"{player.name} reinforced {territory.name} with {armies} armies.")
-        return True   
-                 
-    def end_turn(self):
-        self.state.current_player_index = (self.state.current_player_index + 1) % len(self.state.players)
-        self.state.turn += 1
-        self.state.log_event(f"Turn {self.state.turn}: Now it's {self.state.current_player().name}'s turn.")
-
-    def start(self):
-        self.state.log_event("Game started.")
-        self.assign_starting_territories()
-        self.assign_starting_armies()
-        self.state.log_event(f"{self.state.current_player().name}'s turn begins.")
 
 
 
