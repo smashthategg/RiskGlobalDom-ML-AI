@@ -19,6 +19,7 @@ Currently building a simplified Python implementation of the game.
 
 ## Project Structure
 
+```yaml
 risk_game # Full python implementation of RISK
 ├── main.py # Entry point for running the game
 ├── game.py # Game logic and game state definitions
@@ -27,6 +28,7 @@ risk_game # Full python implementation of RISK
 ├── map_data/
 │ └── classic.json # Map definition (territories, continents, neighbors)
 README.md # You are here
+```
 
 ---
 
