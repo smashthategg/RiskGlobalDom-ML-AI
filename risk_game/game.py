@@ -26,7 +26,7 @@ import random
 
 class GameState:
     """See above for a basic rundown."""
-    def __init__(self, territories, continents, players=None):
+    def __init__(self, territories, continents, combat, players=None):
         self.territories = territories  # list of Territory objects
         self.continents = continents    # list of Continent objects 
         self.players = players if players else []  # list of Player objects
@@ -34,6 +34,7 @@ class GameState:
         self.current_player_index = 0
         self.game_log = []  # List of strings describing game events
         self.game_log_index = 0 # Index to track most recent printed log line. Will be useful for printing only new entries.
+        self.combat = combat # A combat.py class.
 
     def log_event(self, event_str, doPrint=False):
         """Add a new event to the game log. If doPrint=True then also print out recent log entries."""
@@ -160,9 +161,42 @@ class Game:
             terr, amt = curr_player.draft()
             terr.armies += amt
             curr_player.aatd -= amt
-            self.state.log_event(f"Placed {amt} troops in {terr}.")
+            self.state.log_event(f"[DRAFT] Placed {amt} troops in {terr}.", True)
 
         # Attack phase - in progress
+        while True:
+            try:
+                attack_result = curr_player.attack()
+                if attack_result is None:
+                    self.state.log_event(f"[ATTACK] {curr_player.name} ended their attack phase.")
+                    break
+
+                atk_terr, def_terr, amount = attack_result
+                self.state.log_event(f"[ATTACK] {curr_player.name} attacked {def_terr} from {atk_terr} with {amount} troops.")
+                
+                # Replace the territory army counts with the results of the battle.
+                atk_res, def_res = self.state.combat.battle(amount, def_terr.armies)
+                self.state.log_event(f"[ATTACK] Lost troops: {atk_terr.armies-atk_res-1} | {def_terr.armies-def_res}")
+                self.state.log_event(f"[ATTACK] Remaining troops: {atk_res+1} | {def_res}", True)
+                atk_terr.armies = atk_res+1
+                def_terr.armies = def_res
+
+                # If defender lost all troops, territory changes ownership
+                if def_terr.armies == 0:
+                    prev_owner = def_terr.owner
+                    prev_owner.territories.remove(def_terr)
+                    curr_player.territories.append(def_terr)
+                    def_terr.owner = curr_player
+
+                    # Move in troops (for now, we will just move all of them in and add choices later).
+                    def_terr.armies = atk_terr.armies - 1
+                    atk_terr.armies = 1
+
+                    self.state.log_event(f"[ATTACK] {curr_player.name} captured {def_terr.name} and moved in {def_terr.armies} troops!", True)
+                    
+            except Exception as e:
+                self.state.log_event(f"[ERROR] {e}")
+                break
 
         # Fortify phase - in progress
 

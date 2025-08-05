@@ -71,7 +71,7 @@ class Territory:
         self.neighbors = neighbors  # List of adjacent territory names
     
     def __str__(self):
-        return f"{self.name} ({self.continent}) - Owner: {self.owner.name}, Armies: {self.armies}"
+        return f"{self.name} ({self.owner.name}, {self.armies} armies)"
 
     def __repr__(self):
         return self.__str__()
@@ -147,30 +147,98 @@ class Player:
         Output: 
             tuple: (selected_territory, amount): Territory object and the corresponding amount of troops to add (int >= 1).
         """
+
+        step = 0
+        selected_territory = None
+
         while True:
-            try:
-                input_territory = input("Where will you draft? ")
+            if step == 0:
+                input_territory = input("[PROMPT] Where will you draft? ")
+                if input_territory.lower() == "back":
+                    print("[ERROR] You are already at the first step.")
+                    continue
                 owned_territory_names = [t.name for t in self.territories]
                 if input_territory not in owned_territory_names:
-                    raise ValueError
-                break
-            except ValueError:
-                print("You do not own a territory with this name. Please try again.")
+                    print("[ERROR] You do not own a territory with this name. Please try again.")
+                    continue
+                selected_territory = next(t for t in self.territories if t.name == input_territory)
+                step = 1
+
+            elif step == 1:
+                response = input(f"[PROMPT] How many troops? (1–{self.aatd}): (Type 'back' to reselect a territory.) ")
+                if response.lower() == "back":
+                    step = 0
+                    continue
+                try:
+                    amount = int(response)
+                    if amount < 1 or amount > self.aatd:
+                        raise ValueError
+                    return selected_territory, amount
+                except ValueError:
+                    print(f"[ERROR] Invalid number of troops. Please pick a number between 1 and {self.aatd} (inclusive).")
+
+
+    def attack(self):
+        """
+        User chooses a territory to attack from, a neighboring enemy territory to attack,
+        and how many troops to use in the attack.
+
+        Returns:
+            tuple: (from_territory, dest_territory, amount) or None if player skips attack
+        """
+        print("Type 'skip' at any prompt to end your attack phase. Type 'back' to go back one step.")
+
+        step = 0
+        from_territory = None
+        dest_territory = None
+        amount = None
+
         while True:
-            try:
-                amount = int(input("How many troops? "))
-                if amount < 1 or amount > self.aatd:
-                    raise ValueError
-                break
-            except ValueError:
-                print(f"Invalid number of troops. Please pick a number between 1 and {self.aatd} (inclusive).")
+            if step == 0:
+                from_name = input("[PROMPT] Attack from which territory? ")
+                if from_name.lower() in {"skip", "end"}:
+                    return None
+                try:
+                    from_territory = next(t for t in self.territories if t.name == from_name)
+                    if from_territory.armies < 2:
+                        print("[ERROR] You need at least 2 troops to attack from this territory.")
+                        continue
+                    if not any(n.owner != self for n in from_territory.neighbors):
+                        print("[ERROR] This territory has no enemy neighbors to attack.")
+                        continue
+                    step = 1
+                except StopIteration:
+                    print("[ERROR] You do not own a territory with this name. Please try again.")
 
-        selected_territory = next(t for t in self.territories if t.name == input_territory)
-        return selected_territory, amount
+            elif step == 1:
+                enemy_neighbors = [n for n in from_territory.neighbors if n.owner != self]
+                options = "\n".join([str(n) for n in enemy_neighbors])
+                dest_name = input(f"[PROMPT] Which enemy territory do you want to attack? Options: \n{options}\n")
+                if dest_name.lower() in {"skip", "end"}:
+                    return None
+                elif dest_name.lower() == "back":
+                    step = 0
+                    continue
+                try:
+                    dest_territory = next(n for n in enemy_neighbors if n.name == dest_name)
+                    step = 2
+                except StopIteration:
+                    print("[ERROR] Invalid target. Please pick a valid enemy neighbor.")
 
-
-
-
+            elif step == 2:
+                response = input(f"[PROMPT] How many troops to attack with? (1–{from_territory.armies-1}): ")
+                if response.lower() in {"skip", "end"}:
+                    return None
+                elif response.lower() == "back":
+                    step = 1
+                    continue
+                try:
+                    amount = int(response)
+                    if amount < 1 or amount > from_territory.armies-1:
+                        raise ValueError
+                    return from_territory, dest_territory, amount
+                except ValueError:
+                    print(f"[ERROR] Invalid input. You must choose between 1 and {from_territory.armies-1}.")
         
         
 

@@ -13,15 +13,18 @@ Intended as a simple script for testing or demo purposes.
 from game import Game, GameState
 from maploader import load_map
 from structures import Player
+from combat import TrueRandom
+from bots import Neutral_Bot
 import random
+
 
 # Initialization settings
 GAME_MAP_PATH = "map_data/classic.json"
 players = [
-    Player(name="P1"),
-    Player(name="P2"),
-    Player(name="P3"),
-    Player(name="P4")
+    Neutral_Bot(name="P1"),
+    Neutral_Bot(name="P2"),
+    Neutral_Bot(name="P3"),
+    Player(name="You")
 ]
 
 def play_game():
@@ -36,10 +39,9 @@ def play_game():
     """
     random.shuffle(players)
     territories, continents = load_map(GAME_MAP_PATH)
-    game_state = GameState(territories, continents, players)
+    game_state = GameState(territories, continents, TrueRandom(), players)
     game = Game(game_state)
     game.start()
-    print(game.state.get_log())
 
 if __name__ == '__main__':
     play_game()
