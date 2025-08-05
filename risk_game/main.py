@@ -41,4 +41,5 @@ def play_game():
     game.start()
     print(game.state.get_log())
 
-play_game()
+if __name__ == '__main__':
+    play_game()

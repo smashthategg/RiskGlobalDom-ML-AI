@@ -7,6 +7,7 @@ Contains the classes for the main game data structures. They are integral to the
     - Player
     - Territory
 """
+import io
 
 class Card:
     """
@@ -82,22 +83,34 @@ class Player:
     Attributes:
         name (str): Name of the player.
         territories (list[Territory]): Territories owned by the player.
+        continents (list[Continent]): Continents owned by the player.
         cards (list[Card]): Cards held by the player.
-        armies (int): Total number of armies the player has.
+        armies (int): Total number of armies the player has, including income at the start of draft phase.
+        aatd (int): Armies Available to Draft. Total number of armies the player is allowed to deploy during draft phase.
 
     Methods:
         update_army_count(): Recalculates and updates the total army count based on territories.
+        update_aatd_count(): Recalculates and updates total income based on held continents and # territories owned.
+    
+    Interactive methods prompt the user to make moves via std I/O:
+        draft(): User chooses a territory to add troops in and how much.
+        attack(): User chooses a territory to attack and how hard.
+        fortify(): User chooses a territory to fortify troops from and to, and how much.
+        trade(): User chooses cards to trade in.
     """
 
     def __init__(self, name):
         self.name = name
         self.territories = []
+        self.continents = []
         self.cards = []
         self.armies = 0
+        self.aatd = 3
 
     def update_army_count(self):
         """
         Recalculates the total number of armies by summing the armies in all owned territories.
+        Player.armies is set to this value.
 
         Returns:
             int: Updated total army count.
@@ -107,6 +120,60 @@ class Player:
             count += territory.armies
         self.armies = count
         return count
+
+    def update_aatd_count(self):
+        """
+        Recalculates and updates total income based on held continents and # territories owned.
+        Player.aatd is set to this value.
+
+        Algorithm: Sum all continent bonuses and add `max(3, floor(# territories owned / 3))`.
+
+        Returns:
+            Updated aatd value (int).
+        """
+        count = max(3, (len(self.territories) // 3))
+        for c in self.continents:
+            count += c.bonus
+        self.aatd = count
+        return count
+        
+
+
+    def draft(self):
+        """
+        User chooses territory to add troops in and how much. 
+        This function keeps getting called until there are no more troops to draft.
+
+        Output: 
+            tuple: (selected_territory, amount): Territory object and the corresponding amount of troops to add (int >= 1).
+        """
+        while True:
+            try:
+                input_territory = input("Where will you draft? ")
+                owned_territory_names = [t.name for t in self.territories]
+                if input_territory not in owned_territory_names:
+                    raise ValueError
+                break
+            except ValueError:
+                print("You do not own a territory with this name. Please try again.")
+        while True:
+            try:
+                amount = int(input("How many troops? "))
+                if amount < 1 or amount > self.aatd:
+                    raise ValueError
+                break
+            except ValueError:
+                print(f"Invalid number of troops. Please pick a number between 1 and {self.aatd} (inclusive).")
+
+        selected_territory = next(t for t in self.territories if t.name == input_territory)
+        return selected_territory, amount
+
+
+
+
+        
+        
+
 
     def __str__(self):
         return f"{self.name} has {self.armies} troops, {len(self.territories)} territories, and {len(self.cards)} cards."

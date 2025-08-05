@@ -30,19 +30,30 @@ class GameState:
         self.territories = territories  # list of Territory objects
         self.continents = continents    # list of Continent objects 
         self.players = players if players else []  # list of Player objects
-        self.turn = 0
+        self.round = 0
         self.current_player_index = 0
         self.game_log = []  # List of strings describing game events
+        self.game_log_index = 0 # Index to track most recent printed log line. Will be useful for printing only new entries.
 
-    def log_event(self, event_str):
-        """Add a new event to the game log."""
+    def log_event(self, event_str, doPrint=False):
+        """Add a new event to the game log. If doPrint=True then also print out recent log entries."""
         self.game_log.append(event_str)
+        if doPrint:
+           for line in self.get_log():
+               print(line)
 
-    def get_log(self, last_n=None):
-        """Get the full log or last n entries."""
-        if last_n is None:
+    def get_log(self, full=False):
+        """
+        By default, gets the most recent log entries that have not yet been retrieved by this method.
+        Setting full=True retrieves the full log.
+        """
+        if full:
+            self.game_log_index = len(self.game_log)
             return self.game_log
-        return self.game_log[-last_n:]
+        else:
+            out = self.game_log[self.game_log_index:]
+            self.game_log_index = len(self.game_log)
+            return out
 
     def current_player(self):
         """Return the Player whose turn it is."""
@@ -58,14 +69,15 @@ class Game:
             def assign_starting_territories() ...
             def assign_starting_armies() ...
         
-        Turn-related methods: (NOT STARTED)
-            def draft() ... 
-            def attack() ... 
-            def fortify() ... 
-            def end_turn() ...
+        Turn-related methods: 
+            def next_turn() ... in progress
+            def kill_player() ... not started
+            def end_game() ... not started
         
         Helper, utility, internal methods:
             def give_territory() ...
+            def check_for_winner() ... not started
+            def check_for_dead() ... not started
     """
     def __init__(self, game_state):
         self.state = game_state
@@ -75,7 +87,8 @@ class Game:
         self.state.log_event("Game started.")
         self.assign_starting_territories()
         self.assign_starting_armies()
-        self.state.log_event(f"{self.state.current_player().name}'s turn begins.")
+        self.next_round()
+       
 
     def assign_starting_territories(self):
         """
@@ -127,6 +140,36 @@ class Game:
                 random.choice(player.territories).armies += 1
             player.update_army_count()
             self.state.log_event(str(player))
+
+    def next_round(self):
+        """Advances the game to the next round (iterate through each player's turn)."""
+        self.state.round += 1
+        for i in range(len(self.state.players)):
+            self.state.current_player_index = i
+            self.start_turn()
+
+    def start_turn(self):
+        """Completes a player's turn, including the draft, attack, and fortify phase."""
+
+        curr_player = self.state.current_player()
+        self.state.log_event(f"\n--- Round {self.state.round}: {curr_player.name}'s turn ---")
+        
+        # Draft phase
+        self.state.log_event(f"[DRAFT] Received {curr_player.update_aatd_count()} troops ({len(curr_player.territories)})", True)
+        while curr_player.aatd > 0:
+            terr, amt = curr_player.draft()
+            terr.armies += amt
+            curr_player.aatd -= amt
+            self.state.log_event(f"Placed {amt} troops in {terr}.")
+
+        # Attack phase - in progress
+
+        # Fortify phase - in progress
+
+        # End turn
+        self.state.log_event(f"Ends with {curr_player.update_army_count()} troops", True)
+
+
 
     def give_territory(self, territory, player):
         """Transfers ownership of a territory to a player."""

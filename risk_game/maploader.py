@@ -7,7 +7,7 @@ Functions:
     load_map(path): Loads and returns Territory and Continent objects from the given JSON file.
 """
 
-import json
+import json, os
 from structures import Territory, Continent
 
 def load_map(path):
@@ -40,8 +40,9 @@ def load_map(path):
             - territories (list[Territory]): List of Territory objects with neighbor references.
             - continents (list[Continent]): List of Continent objects with linked territories.
     """
-
-    with open(path, "r") as f:
+    base_dir = os.path.dirname(__file__)
+    full_path = os.path.join(base_dir, path)
+    with open(full_path, "r") as f:
         map_data = json.load(f)
 
     territory_data = map_data["territories"]
