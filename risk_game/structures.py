@@ -69,6 +69,31 @@ class Territory:
         self.owner = None
         self.armies = 0
         self.neighbors = neighbors  # List of adjacent territory names
+
+    def get_connected_territories(self):
+        """
+        Gets a list of Territories connected to this Territory through neighbors 
+        that share the same owner. Does NOT include self in the result.
+
+        Returns:
+            connected (list[Territory]): Territories connected to this territory 
+                                        via same-owner paths. Can be empty.
+        """
+        connected = []
+        visited = {self}  # Set to avoid repeats
+        queue = [self]
+
+        while queue:
+            current = queue.pop(0)
+            for neighbor in current.neighbors:
+                if neighbor.owner == self.owner and neighbor not in visited:
+                    visited.add(neighbor)
+                    connected.append(neighbor)
+                    queue.append(neighbor)
+
+        return connected
+
+
     
     def __str__(self):
         return f"{self.name} ({self.owner.name}, {self.armies} armies)"
@@ -110,6 +135,7 @@ class Player:
     def update_army_count(self):
         """
         Recalculates the total number of armies by summing the armies in all owned territories.
+        Also reevaluates continent ownership
         Player.armies is set to this value.
 
         Returns:
@@ -119,6 +145,7 @@ class Player:
         for territory in self.territories:
             count += territory.armies
         self.armies = count
+
         return count
 
     def update_aatd_count(self):
@@ -239,8 +266,104 @@ class Player:
                     return from_territory, dest_territory, amount
                 except ValueError:
                     print(f"[ERROR] Invalid input. You must choose between 1 and {from_territory.armies-1}.")
-        
-        
+    
+    def move_troops(self, from_territory, dest_territory, amt):
+        """
+        Helper function to move troops from one territory to another
+        Used after an attack, or during fortify phase.
+        Note: no error checks within this function, should be done before function is called.
+
+        Args:
+            from_territory (Territory): Starting territory
+            dest_territory (Territory): Ending territory
+            amt (int): Number of troops to be moved
+        """
+        from_territory.armies -= amt
+        dest_territory.armies += amt
+
+    def fortify(self, from_territory=None, dest_territory=None):
+        """
+        User chooses a territory to fortify from, a connected territory to fortify to,
+        and how many troops to move. This function also doubles to be flexible with post-attack troop movement.
+
+        Args default to none but are given when moving troops in after a successful attack:
+            from_territory (Territory):
+            dest_territory (Territory): 
+
+        Returns:
+            tuple: (from_territory, dest_territory, amount) or None if player skips foritfy
+            OR
+            int: if from_territory and dest_territory are already given, and we just want the # troops for post-attack phase.
+        """
+        attack = True if from_territory and dest_territory else False
+        step = 2 if attack else 0
+        while True:
+            if step == 0:
+                print("[INFO] Type 'skip' at any prompt to end your fortify phase. Type 'back' to go back one step.")
+                from_name = input("[PROMPT] Fortify from which territory? ")
+                if from_name.lower() in {"skip", "end"}:
+                    return None
+                try:
+                    from_territory = next(t for t in self.territories if t.name == from_name)
+                    if from_territory.armies < 2:
+                        print("[INFO] You need at least 2 troops to fortify from this territory.")
+                        continue
+                    connected_owned = from_territory.get_connected_territories()
+                    if not connected_owned:
+                        print("[INFO] No connected territories you own to fortify to.")
+                        continue
+                    step = 1
+                except StopIteration:
+                    print("[ERROR] You do not own a territory with this name. Please try again.")
+
+            elif step == 1:
+                options = "\n".join([str(t) for t in connected_owned])
+                dest_name = input(f"[PROMPT] Fortify to which connected territory? Options:\n{options}\n")
+                if dest_name.lower() in {"skip", "end"}:
+                    return None
+                elif dest_name.lower() == "back":
+                    step = 0
+                    continue
+                try:
+                    dest_territory = next(t for t in connected_owned if t.name == dest_name)
+                    step = 2
+                except StopIteration:
+                    print("[ERROR] Invalid target. Please choose a valid connected owned territory.")
+
+            elif step == 2:
+                max_movable = from_territory.armies - 1
+                if attack:
+                    # You must move at least 3 troops into a captured territory, when possible.
+                    # If you can only move 3 or less, then they automatically get moved.
+                    if max_movable <= 3: 
+                        return max_movable
+                    else:
+                        min_movable = 3
+                else:
+                    min_movable = 1
+                response = input(f"[PROMPT] How many troops to move? ({min_movable}–{max_movable}): ")
+                if response.lower() in {"skip", "end"}:
+                    if attack:
+                        print("[INFO] Skip failed. You must choose troops to move after an attack.")
+                        continue
+                    else:
+                        return None
+                elif response.lower() == "back":
+                    if attack:
+                        print("[INFO] Back failed. You must choose troops to move after an attack.")
+                    else:
+                        step = 1
+                    continue
+                try:
+                    amount = int(response)
+                    if amount < min_movable or amount > max_movable:
+                        raise ValueError
+                    if attack:
+                        return amount
+                    return from_territory, dest_territory, amount
+                except ValueError:
+                    print(f"[ERROR] Invalid input. You must choose between {min_movable} and {max_movable}.")
+
 
 
     def __str__(self):

@@ -85,12 +85,12 @@ class Game:
 
     def start(self):
         """Begins the game by assigning territories and starting armies, (will implement the start of first turn)"""
-        self.state.log_event("Game started.")
+        self.state.log_event("--- Game started. ---")
         self.assign_starting_territories()
         self.assign_starting_armies()
-        self.next_round()
+        while True:
+            self.next_round()
        
-
     def assign_starting_territories(self):
         """
         Randomly assigns all territories evenly among players.
@@ -116,7 +116,7 @@ class Game:
                 territory = all_territories[idx]
                 player = players[player_index]
                 self.give_territory(territory, player)
-                self.state.log_event(f"{player.name} received {territory.name}.")
+                self.state.log_event(f"[GAME] {player.name} received {territory.name}.")
                 idx += 1 
 
     def assign_starting_armies(self):
@@ -140,20 +140,36 @@ class Game:
             for _ in range(start_army_count - player.armies):
                 random.choice(player.territories).armies += 1
             player.update_army_count()
-            self.state.log_event(str(player))
 
     def next_round(self):
         """Advances the game to the next round (iterate through each player's turn)."""
+        info = [str(t) for t in self.state.territories] + [str(p) for p in self.state.players]
+        info_str = '\n[INFO] ' + '\n[INFO] '.join(info)
+        self.state.log_event(info_str, True)
         self.state.round += 1
         for i in range(len(self.state.players)):
             self.state.current_player_index = i
             self.start_turn()
+
 
     def start_turn(self):
         """Completes a player's turn, including the draft, attack, and fortify phase."""
 
         curr_player = self.state.current_player()
         self.state.log_event(f"\n--- Round {self.state.round}: {curr_player.name}'s turn ---")
+
+        # Update current player's owned continents list
+        owned_continents = []
+        for continent in self.state.continents:
+            if all(t.owner == curr_player for t in continent.territories):
+                continent.owner = curr_player  # Update continent owner
+                owned_continents.append(continent)
+            else:
+                # Remove owner if previously owned but lost
+                if continent.owner == curr_player:
+                    continent.owner = None
+
+        curr_player.continents = owned_continents  # Update player's owned continents attribute
         
         # Draft phase
         self.state.log_event(f"[DRAFT] Received {curr_player.update_aatd_count()} troops ({len(curr_player.territories)})", True)
@@ -161,7 +177,7 @@ class Game:
             terr, amt = curr_player.draft()
             terr.armies += amt
             curr_player.aatd -= amt
-            self.state.log_event(f"[DRAFT] Placed {amt} troops in {terr}.", True)
+            self.state.log_event(f"[DRAFT] Placed {amt} troops in {terr}.")
 
         # Attack phase - in progress
         while True:
@@ -188,20 +204,36 @@ class Game:
                     curr_player.territories.append(def_terr)
                     def_terr.owner = curr_player
 
-                    # Move in troops (for now, we will just move all of them in and add choices later).
-                    def_terr.armies = atk_terr.armies - 1
-                    atk_terr.armies = 1
+                    # Move in troops.
+                    amount = curr_player.fortify(from_territory = atk_terr, dest_territory = def_terr)
+                    curr_player.move_troops(from_territory = atk_terr, dest_territory = def_terr, amt = amount)
 
-                    self.state.log_event(f"[ATTACK] {curr_player.name} captured {def_terr.name} and moved in {def_terr.armies} troops!", True)
-                    
+                    self.state.log_event(f"[ATTACK] {curr_player.name} captured {def_terr.name} and moved in {amount} troops!")
+                
             except Exception as e:
                 self.state.log_event(f"[ERROR] {e}")
                 break
 
         # Fortify phase - in progress
+        while True:
+            try:
+                result = curr_player.fortify()
+                if result is None:
+                    self.state.log_event(f"[FORTIFY] {curr_player.name} skipped their fortify phase.")
+                    break
+                else:
+                    from_terr, dest_terr, amount = result
+                    curr_player.move_troops(from_terr, dest_terr, amount)
+                    self.state.log_event(f"[FORTIFY] {curr_player.name} fortified {amount} troops from {from_terr} to {dest_terr}.")
+                    break
+
+            except Exception as e:
+                self.state.log_event(f"[ERROR] {e}")
+                break    
 
         # End turn
-        self.state.log_event(f"Ends with {curr_player.update_army_count()} troops", True)
+        curr_player.update_army_count()
+        self.state.log_event(f"[END] {curr_player}", True)
 
 
 

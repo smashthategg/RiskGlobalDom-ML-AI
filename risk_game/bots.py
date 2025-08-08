@@ -21,6 +21,9 @@ class Neutral_Bot(Player):
     def attack(self):
         return None
     
+    def fortify(self):
+        return None
+    
 
     
     
