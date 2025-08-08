@@ -92,4 +92,4 @@ This project is open source and MIT-licensed. Feel free to fork, contribute, or 
 
 ## Author
 
-Johnny Lin (@smashthategg)
+Johnny (@smashthategg)
