@@ -7,7 +7,6 @@ Contains the classes for the main game data structures. They are integral to the
     - Player
     - Territory
 """
-import io
 
 class Card:
     """
@@ -24,9 +23,16 @@ class Card:
             The first card in this order whose associated territory is also owned by the player also grants 2 additional troops
             which are automatically drafted to that territory.
     """
-    def __init__(self, type, territory):
+    def __init__(self, type, territory=None):
         self.type = type
         self.territory = territory
+
+    def __repr__(self):
+        if self.territory:
+            return f"Card(type={self.type}, territory={self.territory.name})"
+        else:
+            return f"Card(type={self.type})"
+
 
 class Continent:
     """
@@ -116,6 +122,7 @@ class Player:
     Methods:
         update_army_count(): Recalculates and updates the total army count based on territories.
         update_aatd_count(): Recalculates and updates total income based on held continents and # territories owned.
+        trade_in_cards(list[Card]): Trades in a chosen set of 3 cards
     
     Interactive methods prompt the user to make moves via std I/O:
         draft(): User chooses a territory to add troops in and how much.
@@ -163,7 +170,95 @@ class Player:
             count += c.bonus
         self.aatd = count
         return count
+    
+    def trade_in_cards(self, chosen_set):
+        """
+        Trade in a chosen set of 3 cards.
+
+        Args:
+            chosen_set (list of Card): Exactly 3 cards forming a valid set.
+
+        Updates:
+            self.cards: removes the traded cards
+            self.aatd: increments by total troop bonus
+            Territory.armies: adds +2 bonus troops to first owned card territory, if any
         
+        Returns:
+            int: number of bonus troops gained.
+        """
+        # Remove cards from player's hand
+        for card in chosen_set:
+            self.cards.remove(card)
+
+        # Count card types, ignoring jokers
+        types = [card.type for card in chosen_set if card.type != "Joker"]
+        jokers = sum(1 for card in chosen_set if card.type == "Joker")
+        unique_types = set(types)
+
+        bonus = 0
+        if len(unique_types) + jokers == 3:
+            bonus = 10
+        elif len(unique_types) == 1:
+            card_type = unique_types.pop()
+            if card_type == "Infantry":
+                bonus = 4
+            elif card_type == "Cavalry":
+                bonus = 6
+            elif card_type == "Artillery":
+                bonus = 8
+        else: # This should never be called if our logic is coded properly
+            raise ValueError("[ERROR] Invalid card set traded in.")
+
+        # Find first card territory owned by player, add 2 to it.
+        for card in chosen_set:
+            if card.territory in self.territories:
+                card.territory.armies += 2
+                break
+        
+        self.aatd += bonus
+        return bonus
+
+    def validate_card_set(self, chosen_set):
+        """
+        Validates whether the chosen set of cards (3 or more) contains at least one valid 3-card trade-in set.
+
+        Args:
+            chosen_set (list[Card]):
+
+        Returns:
+            bool: True if there exists a 3-card subset forming a valid set, False otherwise.
+        """
+        n = len(chosen_set)
+        if n < 3:
+            return False
+        if n >= 5:
+            # Guaranteed at least one valid set
+            return True
+
+        # For 3 or 4 cards, manually check all 3-card subsets
+        subsets = []
+        if n == 3:
+            subsets = [chosen_set]
+        elif n == 4:
+            # 4 choose 3 = 4 subsets
+            subsets = [
+                [chosen_set[0], chosen_set[1], chosen_set[2]],
+                [chosen_set[0], chosen_set[1], chosen_set[3]],
+                [chosen_set[0], chosen_set[2], chosen_set[3]],
+                [chosen_set[1], chosen_set[2], chosen_set[3]],
+            ]
+
+        for subset in subsets:
+            types = [card.type for card in subset if card.type != "Joker"]
+            jokers = sum(1 for card in subset if card.type == "Joker")
+            unique_types = set(types)
+
+            # Three of a kind
+            if len(unique_types) == 1 or len(unique_types) + jokers == 3:
+                return True
+
+        return False
+
 
 
     def draft(self):
@@ -364,6 +459,48 @@ class Player:
                 except ValueError:
                     print(f"[ERROR] Invalid input. You must choose between {min_movable} and {max_movable}.")
 
+    def trade(self):
+        """
+        User-interactive function to trade in cards.
+
+        Repeatedly prompts user to select 3 cards to trade in until a valid set is chosen
+        or user opts to skip trading (can't skip if user has 5+ cards.)
+
+        Returns:
+            list[Card]: the chosen set of cards (to be passed through trade_in_cards())
+        """
+        # Skip this function if user can't trade.
+        if not self.validate_card_set(self.cards):
+            return None
+
+        print("[INFO] You can trade cards! Listed below: ")
+        for idx, card in enumerate(self.cards):
+            print(f"{idx}: {card}")
+
+        while True:
+            user_input = input("Enter three card indices to trade separated by spaces, or 'skip' to skip trading: ").strip()
+            if user_input.lower() == "skip":
+                if len(self.cards) >= 5:
+                    print("[INFO] Skip failed. You must trade on 5+ cards.")
+                    continue
+                else:
+                    return None
+
+            try:
+                indices = list(map(int, user_input.split()))
+                if len(indices) != 3:
+                    print("[ERROR] Please enter exactly 3 indices.")
+                    continue
+                chosen_set = [self.cards[i] for i in indices]
+            except (ValueError, IndexError):
+                print("[ERROR] Invalid input. Please enter valid card indices separated by spaces.")
+                continue
+
+            if not self.is_valid_set(chosen_set):
+                print("[INFO] Chosen cards do not form a valid set. Try again.")
+                continue
+            else:
+                return chosen_set
 
 
     def __str__(self):

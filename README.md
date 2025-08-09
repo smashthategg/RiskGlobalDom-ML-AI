@@ -2,7 +2,7 @@
 
 Trying to make a bot capable of playing the game of RISK: Global Domination at a satisfactory level. 
 
-Currently building a simplified Python implementation of the game.
+FINISHED building a simplified Python implementation of the game!
 
 ## Features
 
@@ -10,17 +10,51 @@ Currently building a simplified Python implementation of the game.
 - Player and territory modeling
 - Randomized territory assignment
 - Initial army distribution
-- Full turn handling and draft/attack/fortify actions
-- AFK bots to play with
+- Full turn handling and trade/draft/attack/fortify/end actions
+- Card system with trading rules (highest-value set prioritization for bots)
+- Continents recognition and ownership bonus tracking
+- Combat system with true random dice rolls (Risk rules)
 - Event logging for game state transparency
+- Basic "Aggro" and "Neutral" bots to play with
+- Modular design for adding new bot strategies
 
-> This project is a work-in-progress and currently does **not** include loser/winner checks, card trading, or user interface.
+> This project is a work-in-progress and currently does **not** include user interface or ML/AI.
 
 ---
+
+## How the Bots Work
+
+The game supports automated players (“bots”) with different strategies.  
+All bots inherit from the base `Player` class but override key decision-making functions.
+
+### Core Bot Functions
+
+A bot can override any of these methods to customize its playstyle:
+
+| Method | Purpose |
+|--------|---------|
+| `trade_in_cards()` | Decide whether to trade cards. Bots can evaluate hand value and return the chosen set. |
+| `draft_phase()` | Decide where and how to place available armies. |
+| `attack_phase()` | Determine which territories to attack and with how many armies. |
+| `fortify_phase()` | Decide troop movement between owned territories at the end of the turn. |
+
+Bots receive full access to `self.territories (neighbors included)`, `self.cards`, `self.armies`, and `self.continents` to make decisions. In the future, I will add a **lot** of metrics for AI to learn off of.
+
+---
+
+### Example: Aggressive Bot (“Aggro1_Bot”)
+
+The **Aggro1_Bot** class focuses on rapid expansion:  
+- **Card Trading:** Always trades the **highest-value** set whenever possible.  
+- **Draft:** Puts all available armies into the **strongest territory with at least one enemy neighbor**.  
+- **Attack:** Attacks as long as a win is likely (e.g., attacker has ≥ 2 more armies than defender).  
+- **Fortify:** Moves armies toward the front lines to prepare for more attacks next
 
 ## Project Structure
 
 ```yaml
+game_logs # Directory for game logs
+└──X.txt # Complete log of one game instance
 risk_game # Full python implementation of RISK
 ├── map_data/ # Map definitions (territories, continents, neighbors)
 │ └── classic.json  # The classic RISK map, in JSON form.
@@ -29,7 +63,8 @@ risk_game # Full python implementation of RISK
 ├── game.py # Game logic and game state definitions
 ├── main.py # Entry point for running the game
 ├── maploader.py # Loads map data from a JSON file
-├── structures.py # Contains data classes: Player, Territory, Continent
+└── structures.py # Contains data classes: Player, Territory, Continent
+.gitignore # unshared files (mostly cache)
 README.md # You are here
 ```
 
@@ -76,15 +111,21 @@ Example snippet:
 
 ## Future Plans
 
-✅ Player, Territory, and GameState structure
+✅ Card, Player, Territory, Continent, GameState, Game structures
 
-✅ Basic attack, draft, end turn logic
+✅ Full draft, attack, fortify, end turn, and card logic
 
-🔲 Full combat rules and Card system
+✅ Complete detailed logging of full games
 
-🔲 AI bot(s) and training interface
+✅ True Random combat on Classic map + Map loader
 
-🔲 GUI or CLI interface
+✅ Basic bots.
+
+🔲 More modes and maps!
+
+🔲 Advanced ML/RL bot(s) and training interface
+
+🔲 GUI or CLI interface (help appreciated!!)
 
 ## License
 
