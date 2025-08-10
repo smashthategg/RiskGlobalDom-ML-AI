@@ -250,7 +250,12 @@ class Game:
         curr_player.continents = owned_continents  # Update player's owned continents attribute
         
         # Draft phase
-        self.state.log_event(f"[DRAFT] {curr_player.name} received {curr_player.update_aatd_count()} troops with {len(curr_player.territories)} territories.", True)
+        # Special first turn logic
+        extras = [0,0,0,1,2,3]
+        i = 0
+        if self.state.round == 1:
+            i = self.state.players.index(curr_player)
+        self.state.log_event(f"[DRAFT] {curr_player.name} received {curr_player.update_aatd_count(extras[i])} troops with {len(curr_player.territories)} territories.", True)
         self.trade_and_draft(curr_player)
 
         # Attack phase

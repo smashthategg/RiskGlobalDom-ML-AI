@@ -155,12 +155,14 @@ class Player:
 
         return count
 
-    def update_aatd_count(self):
+    def update_aatd_count(self, extra=0):
         """
         Recalculates and updates total income based on held continents and # territories owned.
         Player.aatd is set to this value.
 
-        Algorithm: Sum all continent bonuses and add `max(3, floor(# territories owned / 3))`.
+        Args: extra (int): To add with the default bonuses (applicable in first turn later seats).
+
+        Algorithm: Sum all continent bonuses and add `max(3, floor(# territories owned / 3))`. Add any extra.
 
         Returns:
             Updated aatd value (int).
@@ -168,8 +170,8 @@ class Player:
         count = max(3, (len(self.territories) // 3))
         for c in self.continents:
             count += c.bonus
-        self.aatd = count
-        return count
+        self.aatd = count + extra
+        return count + extra
     
     def trade_in_cards(self, chosen_set):
         """
