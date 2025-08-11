@@ -33,7 +33,7 @@ def estimate_win_probability(a, d, n):
     return wins / n
 
 def final_estimate_win_probability(a, d, verbose=False):
-    p0 = estimate_win_probability(a, d, 400)
+    p0 = estimate_win_probability(a, d, 2400)
     if p0 < 0.48:
         p0 = p0 + 0.02
     elif p0 > 0.52:
