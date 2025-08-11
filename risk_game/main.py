@@ -13,7 +13,6 @@ Intended as a script for testing or demo purposes.
 
 from game import Game, GameState
 from maploader import load_map
-from combat import TrueRandom
 from bots import *
 import random, os
 
@@ -29,7 +28,6 @@ Feel free to edit players[]. Our options for Player classes are as follows:
  - Aggro1_Bot: Bot that puts up a fight (see bots.py for algorithm)
 """
 GAME_MAP_PATH = "map_data/classic.json"
-combat_rules = TrueRandom()
 players = [
     Aggro1_Bot(name="P1"),
     Aggro1_Bot(name="P2"),
@@ -51,7 +49,7 @@ def play_game():
     """
     random.shuffle(players)
     territories, continents = load_map(GAME_MAP_PATH)
-    game_state = GameState(territories, continents, combat_rules, players)
+    game_state = GameState(territories, continents, players)
     game = Game(game_state)
     game.start()
 

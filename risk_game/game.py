@@ -23,6 +23,7 @@ Usage:
 """
 
 from structures import Card
+from combat import battle
 import random
 
 class GameState:
@@ -38,19 +39,17 @@ class GameState:
         current_player_index (int): Index of the player whose turn it is.
         game_log (list of str): Chronological list of game event messages.
         game_log_index (int): Tracks how many log entries have been retrieved so far.
-        combat (Combat): Combat mechanics handler (external class).
         deck (list of Card): Current deck of cards to draw from.
         discard (list of Card): Discard pile of used cards.
     """
 
-    def __init__(self, territories, continents, combat, players=None):
+    def __init__(self, territories, continents, players=None):
         """
         Initializes the GameState with game map data, players, and combat system.
 
         Args:
             territories (list of Territory): List of Territory objects in the game.
             continents (list of Continent): List of Continent objects in the game.
-            combat (Combat): An instance of the Combat class managing battles.
             players (list of Player, optional): List of Player objects participating.
                 Defaults to an empty list if not provided.
         """
@@ -61,7 +60,6 @@ class GameState:
         self.current_player_index = 0
         self.game_log = []
         self.game_log_index = 0
-        self.combat = combat
         self.deck = []
         self.discard = []
 
@@ -271,7 +269,7 @@ class Game:
                 self.state.log_event(f"[ATTACK] {curr_player.name} attacked {def_terr} from {atk_terr} with {amount} troops.")
                 
                 # Replace the territory army counts with the results of the battle.
-                atk_res, def_res = self.state.combat.battle(amount, def_terr.armies)
+                atk_res, def_res = battle(amount, def_terr.armies)
                 self.state.log_event(f"[ATTACK] Lost troops: {atk_terr.armies-atk_res-1} | {def_terr.armies-def_res}")
                 self.state.log_event(f"[ATTACK] Remaining troops: {atk_res+1} | {def_res}", True)
                 atk_terr.armies = atk_res+1
