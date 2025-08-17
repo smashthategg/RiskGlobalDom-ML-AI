@@ -14,6 +14,7 @@ Intended as a script for testing or demo purposes.
 from game import Game, GameState
 from maploader import load_map
 from bots import *
+from datetime import datetime
 import random, os
 
 
@@ -27,7 +28,7 @@ Feel free to edit players[]. Our options for Player classes are as follows:
  - Neutral_Bot: Bot that never attacks
  - Aggro1_Bot: Bot that puts up a fight (see bots.py for algorithm)
 """
-GAME_MAP_PATH = "map_data/classic.json"
+GAME_MAP_PATH = "map_data.json"
 players = [
     Aggro1_Bot(name="P1"),
     Aggro1_Bot(name="P2"),
@@ -56,17 +57,11 @@ def play_game():
     # Ensure game_logs directory exists
     os.makedirs("game_logs", exist_ok=True)
 
-    # Find next available log filename
-    existing_files = [f for f in os.listdir("game_logs") if f.endswith(".txt")]
-    existing_numbers = []
-    for f in existing_files:
-        try:
-            existing_numbers.append(int(os.path.splitext(f)[0]))
-        except ValueError:
-            pass
-    next_num = max(existing_numbers) + 1 if existing_numbers else 1
+    now = datetime.now()
+    filename = "RISK Simulation Log " + now.strftime("%Y-%m-%d_%H-%M-%S") + ".txt"
 
-    log_path = os.path.join("game_logs", f"{next_num}.txt")
+
+    log_path = os.path.join("game_logs", f"{filename}.txt")
     with open(log_path, "w", encoding="utf-8") as log_file:
         for line in game_state.get_log(full=True):
             log_file.write(line + "\n")

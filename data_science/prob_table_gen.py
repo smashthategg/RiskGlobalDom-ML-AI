@@ -10,7 +10,7 @@ Generates and saves a probability lookup table for RISK battles.
 
 import numpy as np
 import os
-from combat import battle
+from risk_game.engine.combat import battle
 
 def estimate_win_probability(a, d, n):
     """
@@ -50,7 +50,7 @@ def final_estimate_win_probability(a, d, verbose=False):
 
 MAX_ATTACKERS = 1000
 MAX_DEFENDERS = 1000
-TABLE_FILE = "probability_table.npy"
+TABLE_FILE = "data_science/probability_table.npy"
 
 def load_or_create_table():
     """

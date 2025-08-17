@@ -1,0 +1,296 @@
+{
+  "Alaska": {
+    "label_pos": [
+      125,
+      82
+    ],
+    "color": "#FFB3B3"
+  },
+  "Northwest Territory": {
+    "label_pos": [
+      184,
+      77
+    ],
+    "color": "#FF9999"
+  },
+  "Greenland": {
+    "label_pos": [
+      287,
+      64
+    ],
+    "color": "#FF8080"
+  },
+  "Alberta": {
+    "label_pos": [
+      165,
+      105
+    ],
+    "color": "#FFCCCC"
+  },
+  "Ontario": {
+    "label_pos": [
+      206,
+      112
+    ],
+    "color": "#FF6666"
+  },
+  "Quebec": {
+    "label_pos": [
+      245,
+      112
+    ],
+    "color": "#FF4D4D"
+  },
+  "Western United States": {
+    "label_pos": [
+      159,
+      143
+    ],
+    "color": "#FF977F"
+  },
+  "Eastern United States": {
+    "label_pos": [
+      202,
+      152
+    ],
+    "color": "#FF665C"
+  },
+  "Central America": {
+    "label_pos": [
+      152,
+      191
+    ],
+    "color": "#FFB380"
+  },
+  "Venezuela": {
+    "label_pos": [
+      196,
+      228
+    ],
+    "color": "#B3FFB3"
+  },
+  "Peru": {
+    "label_pos": [
+      183,
+      279
+    ],
+    "color": "#99FF99"
+  },
+  "Brazil": {
+    "label_pos": [
+      229,
+      270
+    ],
+    "color": "#80FF80"
+  },
+  "Argentina": {
+    "label_pos": [
+      182,
+      346
+    ],
+    "color": "#CCFFCC"
+  },
+  "Iceland": {
+    "label_pos": [
+      328,
+      92
+    ],
+    "color": "#B3B3FF"
+  },
+  "Scandinavia": {
+    "label_pos": [
+      380,
+      92
+    ],
+    "color": "#9999FF"
+  },
+  "Ukraine": {
+    "label_pos": [
+      429,
+      120
+    ],
+    "color": "#8080FF"
+  },
+  "Great Britain": {
+    "label_pos": [
+      309,
+      132
+    ],
+    "color": "#CCCCFF"
+  },
+  "Northern Europe": {
+    "label_pos": [
+      370,
+      140
+    ],
+    "color": "#6666FF"
+  },
+  "Western Europe": {
+    "label_pos": [
+      326,
+      181
+    ],
+    "color": "#4D4DFF"
+  },
+  "Southern Europe": {
+    "label_pos": [
+      375,
+      174
+    ],
+    "color": "#7F99FF"
+  },
+  "North Africa": {
+    "label_pos": [
+      342,
+      255
+    ],
+    "color": "#FFFFB3"
+  },
+  "Egypt": {
+    "label_pos": [
+      389,
+      233
+    ],
+    "color": "#FFFF99"
+  },
+  "East Africa": {
+    "label_pos": [
+      421,
+      286
+    ],
+    "color": "#FFFF80"
+  },
+  "Congo": {
+    "label_pos": [
+      387,
+      308
+    ],
+    "color": "#FFFFCC"
+  },
+  "South Africa": {
+    "label_pos": [
+      390,
+      363
+    ],
+    "color": "#FFFF66"
+  },
+  "Madagascar": {
+    "label_pos": [
+      461,
+      367
+    ],
+    "color": "#E6FF4D"
+  },
+  "Ural": {
+    "label_pos": [
+      487,
+      106
+    ],
+    "color": "#FFCCFF"
+  },
+  "Siberia": {
+    "label_pos": [
+      516,
+      85
+    ],
+    "color": "#FF99FF"
+  },
+  "Yakutsk": {
+    "label_pos": [
+      559,
+      70
+    ],
+    "color": "#FF80FF"
+  },
+  "Kamchatka": {
+    "label_pos": [
+      601,
+      88
+    ],
+    "color": "#FFB3FF"
+  },
+  "Irkutsk": {
+    "label_pos": [
+      558,
+      112
+    ],
+    "color": "#FF66FF"
+  },
+  "Mongolia": {
+    "label_pos": [
+      569,
+      145
+    ],
+    "color": "#FF4DFF"
+  },
+  "Japan": {
+    "label_pos": [
+      631,
+      147
+    ],
+    "color": "#FF88FF"
+  },
+  "Afghanistan": {
+    "label_pos": [
+      477,
+      154
+    ],
+    "color": "#FFAAFF"
+  },
+  "China": {
+    "label_pos": [
+      552,
+      178
+    ],
+    "color": "#FF44FF"
+  },
+  "Middle East": {
+    "label_pos": [
+      446,
+      215
+    ],
+    "color": "#FF11FF"
+  },
+  "India": {
+    "label_pos": [
+      513,
+      213
+    ],
+    "color": "#FF90FF"
+  },
+  "Siam": {
+    "label_pos": [
+      567,
+      234
+    ],
+    "color": "#FFBBFF"
+  },
+  "Indonesia": {
+    "label_pos": [
+      569,
+      302
+    ],
+    "color": "#B3FFFF"
+  },
+  "New Guinea": {
+    "label_pos": [
+      642,
+      285
+    ],
+    "color": "#99FFFF"
+  },
+  "Western Australia": {
+    "label_pos": [
+      612,
+      373
+    ],
+    "color": "#80FFFF"
+  },
+  "Eastern Australia": {
+    "label_pos": [
+      658,
+      360
+    ],
+    "color": "#CCFFFF"
+  }
+}
