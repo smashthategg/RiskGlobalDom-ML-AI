@@ -11,9 +11,9 @@ Entry point for launching a game of RISK.
 Intended as a script for testing or demo purposes.
 """
 
-from game import Game, GameState
-from maploader import load_map
-from bots import *
+from risk_game.engine.game import Game, GameState
+from risk_game.engine.maploader import load_map
+from risk_game.engine.bots import *
 from datetime import datetime
 import random, os
 
@@ -38,20 +38,25 @@ players = [
     Aggro1_Bot(name="P6")
 ]
 
-def play_game():
+def create_game(map=GAME_MAP_PATH, players=players):
     """
-    Sets up and starts a game of RISK.
+    Sets up a Game object.
 
     - Shuffles player order.
     - Loads map data.
     - Creates GameState and Game instances.
+    """
+    random.shuffle(players)
+    territories, continents = load_map(map)
+    game_state = GameState(territories, continents, players)
+    return Game(game_state)
+
+def play_game(game):
+    """
     - Runs the game startup (and completion) logic.
     - Writes the game log to txt file after initialization.
     """
-    random.shuffle(players)
-    territories, continents = load_map(GAME_MAP_PATH)
-    game_state = GameState(territories, continents, players)
-    game = Game(game_state)
+
     game.start()
 
     # Ensure game_logs directory exists
@@ -63,8 +68,9 @@ def play_game():
 
     log_path = os.path.join("game_logs", f"{filename}.txt")
     with open(log_path, "w", encoding="utf-8") as log_file:
-        for line in game_state.get_log(full=True):
+        for line in game.state.get_log(full=True):
             log_file.write(line + "\n")
 
 if __name__ == '__main__':
-    play_game()
+    g = create_game()
+    play_game(g)

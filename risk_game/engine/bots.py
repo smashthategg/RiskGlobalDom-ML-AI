@@ -19,7 +19,7 @@ All will extend from the Player class (see structures.py), with strategies overw
 
 """
 
-from structures import Player
+from risk_game.engine.structures import Player
 import random
 
 class Neutral_Bot(Player):
@@ -112,16 +112,17 @@ class Aggro1_Bot(Player):
             return from_territory.armies - 1
         # C*: strongest territory with no attackable neighbors
         candidates_C = [
-            t for t in self.territories if not any(n.owner != self for n in t.neighbors)
+            t for t in self.territories if not any(n.owner != self for n in t.neighbors) and t.armies > 1
         ]
         if not candidates_C:
             return None  # skip fortify
 
         C_star = max(candidates_C, key=lambda t: t.armies)
+        connected = C_star.get_connected_territories()
 
         # D*: strongest territory that can attack
         candidates_D = [
-            t for t in self.territories if any(n.owner != self for n in t.neighbors)
+            t for t in self.territories if any(n.owner != self for n in t.neighbors) and t in connected
         ]
         if not candidates_D:
             return None

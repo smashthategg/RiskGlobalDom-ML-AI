@@ -8,7 +8,7 @@ Functions:
 """
 
 import json, os
-from structures import Territory, Continent
+from risk_game.engine.structures import Territory, Continent
 
 def load_map(path):
     """

@@ -1,25 +1,29 @@
 # game_loop.py
 import pygame
-from renderer import Renderer
-from input_handler import get_territory_from_click
 
-def run_game(screen, assets):
-    renderer = Renderer(assets)
-
+def run_replay(screen, adapter, renderer, event_interval=1.0):
     running = True
     clock = pygame.time.Clock()
+    event_index = 0
+    time_accumulator = 0  # tracks elapsed time
 
     while running:
+        dt = clock.tick(60) / 1000  # convert milliseconds to seconds
+        time_accumulator += dt
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
-                territory = renderer.get_territory_at(x, y)
-                if territory:
-                    print("Clicked territory:", territory)
 
+        # Advance simulation if enough time has passed
+        while time_accumulator >= event_interval and event_index < len(adapter.history):
+            adapter.state = adapter.history[event_index]
+            event_index += 1
+            time_accumulator -= event_interval  # subtract interval so next event waits
+
+        # Draw
         renderer.update_hover(pygame.mouse.get_pos())
-        renderer.draw_board(screen)
+        if adapter.state:
+            renderer.draw_board(screen, adapter.state)
+
         pygame.display.flip()
-        clock.tick(60)

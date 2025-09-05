@@ -22,8 +22,8 @@ Usage:
     game.start()
 """
 
-from structures import Card
-from combat import battle
+from risk_game.engine.structures import Card
+from risk_game.engine.combat import battle
 import random
 
 class GameState:
@@ -36,11 +36,26 @@ class GameState:
         continents (list of Continent): All continents in the game.
         players (list of Player): List of players currently in the game.
         round (int): Current round number.
-        current_player_index (int): Index of the player whose turn it is.
         game_log (list of str): Chronological list of game event messages.
         game_log_index (int): Tracks how many log entries have been retrieved so far.
-        deck (list of Card): Current deck of cards to draw from.
-        discard (list of Card): Discard pile of used cards.
+        current_player_index (int): Index of the player whose turn it is.
+        phase_info (dict): Extra dynamic, one-time tracking player-specific info for UI rendering and logging.
+        { 
+            "phase": (str) The current phase of a turn.
+            "draft_bonus": (int) The current Player's available armies to deploy (aatd)
+            "card_bonus": (int) The trade-in value of the cards, if the current Player does trade a set.
+            "selected": (dict) Tracks where the current Player drafts troops or attacks/fortifies from, if they do.
+            {
+                "territory": (str) Territory name
+                "change": (int) Positive when drafting, negative when attacking (tracks losses) and fortifying (out)
+            },
+            "target": (dict) Tracks where the current Player attacks/fortifies to. 
+            {
+                "territory": (str) Territory name
+                "change": (int) Negative when attacking (tracks defender losses), positive when fortifying (to)
+            } 
+        },
+
     """
 
     def __init__(self, territories, continents, players=None):
@@ -57,11 +72,10 @@ class GameState:
         self.continents = continents
         self.players = players if players else []
         self.round = 0
-        self.current_player_index = 0
         self.game_log = []
         self.game_log_index = 0
-        self.deck = []
-        self.discard = []
+        self.current_player_index = 0
+        self.phase_info = {}
 
     def log_event(self, event_str, doPrint=False):
         """
@@ -100,7 +114,37 @@ class GameState:
         """Returns the Player object whose turn it currently is."""
         return self.players[self.current_player_index]
 
-    
+    def serialize_ui_simulation(self):
+        ui_state = {}
+        ui_state["players"] = []
+        ui_state["territories"] = {}
+        ui_state["continent_ownership"] = {}
+        for p in self.players:
+            ui_state["players"].append({"name": p.name, "cards": len(p.cards), "armies": p.armies, "territories": len(p.territories)})
+        for t in self.territories:
+            if t.owner:
+                ui_state["territories"][t.name] = {"owner_index": self.players.index(t.owner), "armies": t.armies}
+        for c in self.continents:
+            if c.owner:
+                ui_state["continent_ownership"][c.name] = self.players.index(c.owner)
+        ui_state["current_player_index"] = self.current_player_index
+        ui_state["phase"] = self.phase_info.get("phase")
+        ui_state["current_player_bonus"] = self.phase_info.get("draft_bonus")
+        ui_state["card_bonus"] = self.phase_info.get("card_bonus")
+        ui_state["highlights"] = {
+            "selected": {
+                "territory": self.phase_info.get("selected", {}).get("territory"),
+                "change": self.phase_info.get("selected", {}).get("change")
+            },
+            "target": {
+                "territory": self.phase_info.get("target", {}).get("territory"),
+                "change": self.phase_info.get("target", {}).get("change")
+            }
+        }
+        return ui_state
+        
+        
+            
 class Game:
     """
     Main game container class.
@@ -108,26 +152,34 @@ class Game:
     Attributes:
         state (GameState): Our passive container holding all the info
         running (bool): Our check if game is active or finished.
+        deck (list of Card): Current deck of cards to draw from.
+        discard (list of Card): Discard pile of used cards.
+        listeners (list of functions): UI modules insert functions here to track the Game
         
     Methods are listed as follows:
         def start(): # The main function
             def build_deck() # Set up the deck
             def assign_starting_territories() # Distribute territories among players
             def assign_starting_armies() # Distribute armies among territories 
-            def next_round() ... # Start the next round (called indefinitely until game end)
-                def start_turn() ... # Complete a player's turn (iterated through each player during round)
-                    def trade_and_draft() ... # Helper function called during draft phase (& attack phase on kill)
-                    def give_territory() ... # Transfer ownership of territory. Also used in assign_starting_territories() 
-                    def eliminate_player ...  # Check if player has no territories, remove them if true.
-                    def check_win_condition() ... # Check if anyone won, prepare to end game
-                    def draw_card() ... # Get top card from deck
-                    def reshuffle_deck() ... # Add discard pile and jokers when deck runs out.
-
+            def next_round() # Start the next round (called indefinitely until game end)
+                def start_turn() # Complete a player's turn (iterated through each player during round)
+                    def trade_and_draft() # Helper function called during draft phase (& attack phase on kill)
+                    def give_territory() # Transfer ownership of territory. Also used in assign_starting_territories() 
+                    def eliminate_player  # Check if player has no territories, remove them if true.
+                    def check_win_condition() # Check if anyone won, prepare to end game
+                    def draw_card() # Get top card from deck
+                    def reshuffle_deck() # Add discard pile and jokers when deck runs out.
+        def add_listener(callback: Function) # Adds UI listener
+        def notify_listeners() # Pings the UI listener
+    
 
     """
     def __init__(self, game_state):
         self.state = game_state
         self.running = True
+        self.deck = []
+        self.discard = []
+        self.listeners = []
 
     def start(self):
         """Begins the game by assigning territories and starting armies, (will implement the start of first turn)"""
@@ -135,6 +187,7 @@ class Game:
         self.build_deck()
         self.assign_starting_territories()
         self.assign_starting_armies()
+        self.update_state("no-action")
         while self.running:
             self.next_round()
        
@@ -148,7 +201,7 @@ class Game:
         for terr in self.state.territories:
             cards.append(Card(random.choice(card_types), terr))
         random.shuffle(cards)
-        self.state.deck = cards
+        self.deck = cards
 
     def assign_starting_territories(self):
         """
@@ -233,27 +286,26 @@ class Game:
 
         curr_player = self.state.current_player()
         self.state.log_event(f"\n--- Round {self.state.round}: {curr_player.name}'s turn ---")
-
-        # Update current player's owned continents list
-        owned_continents = []
-        for continent in self.state.continents:
-            if all(t.owner == curr_player for t in continent.territories):
-                continent.owner = curr_player  # Update continent owner
-                owned_continents.append(continent)
-            else:
-                # Remove owner if previously owned but lost
-                if continent.owner == curr_player:
-                    continent.owner = None
-
-        curr_player.continents = owned_continents  # Update player's owned continents attribute
         
         # Draft phase
         # Special first turn logic
-        extras = [0,0,0,1,2,3]
-        i = 0
+        draft_bonus = 0
         if self.state.round == 1:
+            i = 0
+            extras = {
+                6: [0,0,0,1,2,3],
+                5: [0,0,0,1,2],
+                4: [0,0,0,1],
+                3: [0,0,1],
+                2: [0,3]
+            }
+            num_players = len(self.state.players)
             i = self.state.players.index(curr_player)
-        self.state.log_event(f"[DRAFT] {curr_player.name} received {curr_player.update_aatd_count(extras[i])} troops with {len(curr_player.territories)} territories.", True)
+            draft_bonus = curr_player.update_aatd_count(extras[num_players][i])
+        else:
+            draft_bonus = curr_player.update_aatd_count()
+        self.state.log_event(f"[DRAFT] {curr_player.name} received {draft_bonus} troops with {len(curr_player.territories)} territories.", True)
+        self.update_state("bonus", draft_bonus)
         self.trade_and_draft(curr_player)
 
         # Attack phase
@@ -267,13 +319,16 @@ class Game:
 
                 atk_terr, def_terr, amount = attack_result
                 self.state.log_event(f"[ATTACK] {curr_player.name} attacked {def_terr} from {atk_terr} with {amount} troops.")
-                
+                                
                 # Replace the territory army counts with the results of the battle.
                 atk_res, def_res = battle(amount, def_terr.armies)
-                self.state.log_event(f"[ATTACK] Lost troops: {atk_terr.armies-atk_res-1} | {def_terr.armies-def_res}")
-                self.state.log_event(f"[ATTACK] Remaining troops: {atk_res+1} | {def_res}", True)
-                atk_terr.armies = atk_res+1
-                def_terr.armies = def_res
+                atk_res = atk_res + 1
+                atk_loss, def_loss = atk_terr.armies - atk_res, def_terr.armies - def_res
+                atk_terr.armies, def_terr.armies = atk_res, def_res
+
+                self.state.log_event(f"[ATTACK] Lost troops: {atk_loss} | {def_loss}")
+                self.state.log_event(f"[ATTACK] Remaining troops: {atk_res} | {def_res}", True)
+                self.update_state("attack", atk_terr.name, atk_loss*-1, def_terr.name, def_loss*-1)
 
                 # If defender lost all troops, territory changes ownership
                 if def_terr.armies == 0:
@@ -283,7 +338,9 @@ class Game:
 
                     # Eliminate defending player if they lost their last territory.
                     self.eliminate_player(player=def_player, winner=curr_player)
-                    if self.check_win_condition(): return
+                    if self.check_win_condition(): 
+                        self.update_state("no-action")
+                        return
                     
                     # On kill, player may now have 5+ cards. We force trade-ins here.
                     while len(curr_player.cards) >= 5:
@@ -294,7 +351,7 @@ class Game:
                     curr_player.move_troops(from_territory = atk_terr, dest_territory = def_terr, amt = amount)
 
                     self.state.log_event(f"[ATTACK] {curr_player.name} captured {def_terr.name} and moved in {amount} troops!")
-
+                    self.update_state("no-action")
             except Exception as e:
                 self.state.log_event(f"[ERROR] {e}")
                 break
@@ -310,6 +367,7 @@ class Game:
                     from_terr, dest_terr, amount = result
                     curr_player.move_troops(from_terr, dest_terr, amount)
                     self.state.log_event(f"[FORTIFY] {curr_player.name} fortified {amount} troops from {from_terr} to {dest_terr}.")
+                    self.update_state("fortify", from_terr.name, amount*-1, dest_terr.name, amount)
                     break
 
             except Exception as e:
@@ -323,19 +381,22 @@ class Game:
             curr_player.cards.append(new_card)
             self.state.log_event(f"[GAME] {curr_player.name} received a card: {new_card}.")
         self.state.log_event(f"[END] {curr_player}", True)
+        self.update_state("no-action")
 
     def trade_and_draft(self, curr_player): 
         """Helper function for start_turn()."""
         chosen_set = curr_player.trade()
         if chosen_set: # On trade-in, discard cards and add bonus troops
             bonus = curr_player.trade_in_cards(chosen_set)
-            self.state.discard.extend(chosen_set)
+            self.discard.extend(chosen_set)
             self.state.log_event(f"[DRAFT] {curr_player.name} traded in cards for {bonus} bonus troops.", True)
+            self.update_state("trade", bonus)
         while curr_player.aatd > 0: # Draft all available troops
             terr, amt = curr_player.draft()
             terr.armies += amt
             curr_player.aatd -= amt
             self.state.log_event(f"[DRAFT] {curr_player.name} placed {amt} troops in {terr}.")
+            self.update_state("draft", terr.name, amt)
 
     def give_territory(self, territory, player):
         """
@@ -348,6 +409,15 @@ class Game:
         player.territories.append(territory)
         territory.owner = player
         territory.armies = 0
+
+        # Update owner of any continent that includes this territory
+        for continent in self.state.continents:
+            if territory in continent.territories:
+                owners = {t.owner for t in continent.territories}
+                continent.owner = next(iter(owners)) if len(owners) == 1 and None not in owners else None
+
+        # Update player's owned continents list
+        player.continents = [c for c in self.state.continents if c.owner == player]
 
     def eliminate_player(self, player, winner):
         """
@@ -384,9 +454,9 @@ class Game:
         Draws the top card from the deck. If deck is empty, reshuffles discard + jokers first.
         Returns the drawn card (to be added to player's hand by caller).
         """
-        if not self.state.deck:
+        if not self.deck:
             self.reshuffle_deck()
-        card = self.state.deck.pop(0)
+        card = self.deck.pop(0)
         return card
 
     def reshuffle_deck(self):
@@ -395,13 +465,32 @@ class Game:
         Clears the discard pile after reshuffle.
         """
         jokers = [Card("Joker", None), Card("Joker", None)]
-        self.state.deck = self.state.discard + jokers
-        self.state.discard.clear()
-        random.shuffle(self.state.deck)
+        self.deck = self.discard + jokers
+        self.discard.clear()
+        random.shuffle(self.deck)
 
+    def add_listener(self, callback):
+        self.listeners.append(callback)
 
+    def notify_listeners(self):
+        state = self.state.serialize_ui_simulation()
+        for cb in self.listeners:
+            cb(state)  # call each function with the new state
 
-
+    def update_state(self, phase, *args):
+        self.state.phase_info["phase"] = phase
+        if phase == "no-action":
+            pass
+        elif phase == "bonus": 
+            self.state.phase_info["draft_bonus"] = args[0]
+        elif phase == "draft":
+            self.state.phase_info["selected"] = {"territory": args[0], "change": args[1]}
+        elif phase == "trade":
+            self.state.phase_info["card_bonus"] = args[0]
+        elif phase == "attack" or phase == "fortify": 
+            self.state.phase_info["selected"] = {"territory": args[0], "change": args[1]}
+            self.state.phase_info["target"] = {"territory": args[2], "change": args[2]}
+        self.notify_listeners()
 
 
 
