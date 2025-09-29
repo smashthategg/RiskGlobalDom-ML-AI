@@ -274,17 +274,18 @@ class Game:
         i = 0
         while self.running and i < len(self.state.players):
             self.state.current_player_index = i
-            self.start_turn()
+            curr_player = self.state.current_player()
+            if curr_player.alive:
+                self.start_turn(curr_player)
             i += 1
 
-    def start_turn(self):
+    def start_turn(self, curr_player):
         """
         Completes a player's turn, including the draft, attack, and fortify phase.
         
         Returns True if game ended on this turn, False otherwise.
         """
-
-        curr_player = self.state.current_player()
+            
         self.state.log_event(f"\n--- Round {self.state.round}: {curr_player.name}'s turn ---")
         
         # Draft phase
@@ -425,17 +426,11 @@ class Game:
         Transfers that player's cards to winner, the player who killed them.
         """
         if player.territories == []:
-            killed_index = self.state.players.index(player)
+            player.alive = False
             num_cards = len(player.cards)
             winner.cards = winner.cards + player.cards
             player.cards = []
-
             self.state.log_event(f"[GAME] {winner.name} defeated {player.name}, gaining {num_cards} cards.", True)
-            self.state.players.remove(player)
-
-            # Adjust current player index if needed
-            if killed_index < self.state.current_player_index:
-                self.state.current_player_index -= 1
 
     def check_win_condition(self):
         """
@@ -443,8 +438,14 @@ class Game:
         Returns True if game ends, False otherwise.
         """
         # Win condition #1, the standard for world domination gamemode. We may add more later.
-        if len(self.state.players) == 1:
-            self.state.log_event(f"[GAME] {self.state.players[0].name} wins the game!", True)
+        count = 0
+        winner = None
+        for player in self.state.players:
+            if player.alive:
+                count += 1
+                winner = player
+        if count == 1:
+            self.state.log_event(f"[GAME] {winner.name} wins the game!", True)
             self.running = False
             return True
         return False

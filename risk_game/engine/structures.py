@@ -138,6 +138,7 @@ class Player:
         self.cards = []
         self.armies = 0
         self.aatd = 3
+        self.alive = True
 
     def update_army_count(self):
         """

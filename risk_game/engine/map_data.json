@@ -75,7 +75,7 @@
     },
     "territories": {
         "Afghanistan": { "continent": "Asia", "neighbors": [
-            "China", "Middle East", "Southern Europe", "Ukraine", "Ural"
+            "China", "India", "Middle East", "Ukraine", "Ural"
         ] },
         "Alaska": { "continent": "North America", "neighbors": [
             "Alberta", "Kamchatka", "Northwest Territory"
@@ -153,7 +153,7 @@
             "Great Britain", "Scandinavia", "Southern Europe", "Ukraine", "Western Europe"
         ] },
         "Northwest Territory": { "continent": "North America", "neighbors": [
-            "Alaska", "Alberta", "Great Britain", "Ontario"
+            "Alaska", "Alberta", "Greenland", "Ontario"
         ] },
         "Ontario": { "continent": "North America", "neighbors": [
             "Alberta", "Eastern United States", "Greenland", "Northwest Territory", "Quebec", "Western United States"

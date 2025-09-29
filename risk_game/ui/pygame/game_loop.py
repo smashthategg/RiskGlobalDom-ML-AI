@@ -14,12 +14,13 @@ def run_replay(screen, adapter, renderer, event_interval=1.0):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            call = renderer.check_clicked_buttons(event)
         # Advance simulation if enough time has passed
-        while time_accumulator >= event_interval and event_index < len(adapter.history):
-            adapter.state = adapter.history[event_index]
-            event_index += 1
-            time_accumulator -= event_interval  # subtract interval so next event waits
+        if renderer.auto:
+            if time_accumulator >= event_interval and event_index < len(adapter.history):
+                adapter.state = adapter.history[event_index]
+                event_index += 1
+                time_accumulator = 0 # subtract interval so next event waits
 
         # Draw
         renderer.update_hover(pygame.mouse.get_pos())

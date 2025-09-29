@@ -3,18 +3,24 @@ import pygame
 
 class Config:
     def __init__(self):
-        self.player_colors = {
-            0: (255, 0, 0),   
-            1: (255, 128, 0),   
-            2: (255, 255, 0),
-            3: (0, 255, 0),
-            4: (0, 128, 255),
-            5: (128, 0, 255)
+        self.colors = {
+            "red": (220, 20, 60),
+            "orange": (255, 140, 0),
+            "yellow": (200, 180, 0),
+            "green": (144, 238, 144),
+            "blue": (173, 216, 230),
+            "purple": (138, 43, 226),
+            "magenta": (255, 0, 255),
+            "white": (230, 230, 230),
+            "black": (30, 30, 30)
         }
         self.assets = {
             "board": "risk_game/ui/assets/classic_map/outline.png",
             "mask": "risk_game/ui/assets/classic_map/mask.png",
             "map": "risk_game/ui/assets/classic_map/territory_ui.json",
             "pixels": "risk_game/ui/assets/classic_map/territory_pixels.json",
+            "arrow": "risk_game/ui/assets/images/arrow.png",
+            "pfp": "risk_game/ui/assets/images/bot_avatar.png",
+            "pfp_border": "risk_game/ui/assets/images/profile.png"
         }
         self.font = pygame.font.SysFont(None, 22)
