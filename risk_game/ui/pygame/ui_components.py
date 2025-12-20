@@ -93,16 +93,18 @@ class Button:
 class ToggleButton(Button):
     def __init__(self, text_off, text_on, pos, size=(150, 50), 
                  font=pygame.font.SysFont(None, 28),
-                 bg_color=(0, 100, 200), hover_color=(0, 128, 255), text_color=(255, 255, 255)):
+                 bg_color=(0, 100, 200), hover_color=(0, 128, 255), 
+                 bg_color2=(0, 200, 100), hover_color2=(0, 255, 128),
+                 text_color=(255, 255, 255)):
         # Start with the "off" text
         super().__init__(text_off, pos, size, font, bg_color, hover_color, text_color)
-        self.text_off = text_off
-        self.text_on = text_on
-        self.state = False  # False = off/manual, True = on/auto
+        self.on_states = (text_on, bg_color2, hover_color2)
+        self.off_states = (text_off, bg_color, hover_color)
+        self.state = False  # False = off, True = on
 
     def draw(self, screen):
         # Override the text based on state
-        self.text = self.text_on if self.state else self.text_off
+        self.text, self.bg_color, self.hover_color = self.on_states if self.state else self.off_states
         super().draw(screen)
 
     def handle_event(self, event):

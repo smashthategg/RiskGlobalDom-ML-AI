@@ -1,0 +1,60 @@
+{
+  "continents": {
+    "North": {
+      "bonus": 3,
+      "territories": ["A", "B", "C"]
+    },
+    "Center": {
+      "bonus": 4,
+      "territories": ["D", "E", "F"]
+    },
+    "South": {
+      "bonus": 5,
+      "territories": ["G", "H", "I", "J"]
+    }
+  },
+  "territories": {
+    "A": {
+      "continent": "North",
+      "neighbors": ["B"]
+    },
+    "B": {
+      "continent": "North",
+      "neighbors": ["A", "C", "E"]
+    },
+    "C": {
+      "continent": "North",
+      "neighbors": ["B", "F"]
+    },
+
+    "D": {
+      "continent": "Center",
+      "neighbors": ["E", "G"]
+    },
+    "E": {
+      "continent": "Center",
+      "neighbors": ["B", "D", "F"]
+    },
+    "F": {
+      "continent": "Center",
+      "neighbors": ["C", "E", "J"]
+    },
+
+    "G": {
+      "continent": "South",
+      "neighbors": ["D", "H"]
+    },
+    "H": {
+      "continent": "South",
+      "neighbors": ["G", "I"]
+    },
+    "I": {
+      "continent": "South",
+      "neighbors": ["H", "J"]
+    },
+    "J": {
+      "continent": "South",
+      "neighbors": ["I", "F"]
+    }
+  }
+}

@@ -12,7 +12,7 @@ Intended as a script for testing or demo purposes.
 """
 
 from risk_game.engine.game import Game, GameState
-from risk_game.engine.maploader import load_map
+from risk_game.engine.maploader import load_map_json, build_map_objects
 from risk_game.engine.bots import *
 from datetime import datetime
 import random, os
@@ -28,17 +28,17 @@ Feel free to edit players[]. Our options for Player classes are as follows:
  - Neutral_Bot: Bot that never attacks
  - Aggro1_Bot: Bot that puts up a fight (see bots.py for algorithm)
 """
-GAME_MAP_PATH = "map_data.json"
+GAME_MAP_PATH = "maps/map_data.json"
 players = [
     Aggro1_Bot(name="P1"),
     Aggro1_Bot(name="P2"),
     Aggro1_Bot(name="P3"),
-    Aggro1_Bot(name="P5"),
+    Aggro1_Bot(name="P4"),
     Aggro1_Bot(name='P5'),
     Aggro1_Bot(name="P6")
 ]
 
-def create_game(map=GAME_MAP_PATH, players=players):
+def create_game(map=GAME_MAP_PATH, players=players, start_army=0):
     """
     Sets up a Game object.
 
@@ -47,8 +47,8 @@ def create_game(map=GAME_MAP_PATH, players=players):
     - Creates GameState and Game instances.
     """
     random.shuffle(players)
-    territories, continents = load_map(map)
-    game_state = GameState(territories, continents, players)
+    territories, continents = build_map_objects(load_map_json(map))
+    game_state = GameState(territories, continents, players, start_army)
     return Game(game_state)
 
 def play_game(game):

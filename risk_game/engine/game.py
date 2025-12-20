@@ -58,7 +58,7 @@ class GameState:
 
     """
 
-    def __init__(self, territories, continents, players=None):
+    def __init__(self, territories, continents, players=None, custom_start_count=0):
         """
         Initializes the GameState with game map data, players, and combat system.
 
@@ -76,6 +76,7 @@ class GameState:
         self.game_log_index = 0
         self.current_player_index = 0
         self.phase_info = {}
+        self.custom_start_count = custom_start_count
 
     def log_event(self, event_str, doPrint=False):
         """
@@ -134,11 +135,13 @@ class GameState:
         ui_state["highlights"] = {
             "selected": {
                 "territory": self.phase_info.get("selected", {}).get("territory"),
-                "change": self.phase_info.get("selected", {}).get("change")
+                "owner_index": self.phase_info.get("selected", {}).get("owner_index"),
+                "change": self.phase_info.get("selected", {}).get("change", 0)
             },
             "target": {
                 "territory": self.phase_info.get("target", {}).get("territory"),
-                "change": self.phase_info.get("target", {}).get("change")
+                "owner_index": self.phase_info.get("selected", {}).get("owner_index"),
+                "change": self.phase_info.get("target", {}).get("change", 0)
             }
         }
         return ui_state
@@ -246,7 +249,10 @@ class Game:
         """
         num_players = len(self.state.players)
         counts = [0,0,40,35,30,25,20]
-        start_army_count = counts[num_players]
+        if self.state.custom_start_count:
+            start_army_count = self.state.custom_start_count
+        else:
+            start_army_count = counts[num_players]
 
         for player in self.state.players:
             # Set all territories to 1 troop initially
@@ -308,9 +314,9 @@ class Game:
         self.state.log_event(f"[DRAFT] {curr_player.name} received {draft_bonus} troops with {len(curr_player.territories)} territories.", True)
         self.update_state("bonus", draft_bonus)
         self.trade_and_draft(curr_player)
-
         # Attack phase
         capture_success = False
+        self.update_state("no-action")
         while True:
             try:
                 attack_result = curr_player.attack()
@@ -329,7 +335,9 @@ class Game:
 
                 self.state.log_event(f"[ATTACK] Lost troops: {atk_loss} | {def_loss}")
                 self.state.log_event(f"[ATTACK] Remaining troops: {atk_res} | {def_res}", True)
-                self.update_state("attack", atk_terr.name, atk_loss*-1, def_terr.name, def_loss*-1)
+                curr_player.update_army_count()
+                def_terr.owner.update_army_count()
+                self.update_state("attack", atk_terr.name, atk_loss*-1, def_terr, def_loss*-1)
 
                 # If defender lost all troops, territory changes ownership
                 if def_terr.armies == 0:
@@ -358,6 +366,7 @@ class Game:
                 break
 
         # Fortify phase
+        self.update_state("no-action")
         while True:
             try:
                 result = curr_player.fortify()
@@ -368,7 +377,7 @@ class Game:
                     from_terr, dest_terr, amount = result
                     curr_player.move_troops(from_terr, dest_terr, amount)
                     self.state.log_event(f"[FORTIFY] {curr_player.name} fortified {amount} troops from {from_terr} to {dest_terr}.")
-                    self.update_state("fortify", from_terr.name, amount*-1, dest_terr.name, amount)
+                    self.update_state("fortify", from_terr.name, amount*(-1), dest_terr.name, amount)
                     break
 
             except Exception as e:
@@ -418,7 +427,8 @@ class Game:
                 continent.owner = next(iter(owners)) if len(owners) == 1 and None not in owners else None
 
         # Update player's owned continents list
-        player.continents = [c for c in self.state.continents if c.owner == player]
+        for p in self.state.players:
+            p.continents = [c for c in self.state.continents if c.owner == p]
 
     def eliminate_player(self, player, winner):
         """
@@ -427,6 +437,7 @@ class Game:
         """
         if player.territories == []:
             player.alive = False
+            player.armies = 0
             num_cards = len(player.cards)
             winner.cards = winner.cards + player.cards
             player.cards = []
@@ -479,18 +490,22 @@ class Game:
             cb(state)  # call each function with the new state
 
     def update_state(self, phase, *args):
+        self.state.phase_info = {}
         self.state.phase_info["phase"] = phase
         if phase == "no-action":
             pass
         elif phase == "bonus": 
             self.state.phase_info["draft_bonus"] = args[0]
         elif phase == "draft":
-            self.state.phase_info["selected"] = {"territory": args[0], "change": args[1]}
+            self.state.phase_info["selected"] = {"territory": args[0], "owner_index": self.state.current_player_index, "change": args[1]}
         elif phase == "trade":
             self.state.phase_info["card_bonus"] = args[0]
-        elif phase == "attack" or phase == "fortify": 
-            self.state.phase_info["selected"] = {"territory": args[0], "change": args[1]}
-            self.state.phase_info["target"] = {"territory": args[2], "change": args[2]}
+        elif phase == "attack": 
+            self.state.phase_info["selected"] = {"territory": args[0], "owner_index": self.state.current_player_index, "change": args[1]}
+            self.state.phase_info["target"] = {"territory": args[2].name, "owner_index": self.state.players.index(args[2].owner), "change": args[3]}
+        elif phase == "fortify": 
+            self.state.phase_info["selected"] = {"territory": args[0], "owner_index": self.state.current_player_index, "change": args[1]}
+            self.state.phase_info["target"] = {"territory": args[2], "owner_index": self.state.current_player_index, "change": args[3]}
         self.notify_listeners()
 
 

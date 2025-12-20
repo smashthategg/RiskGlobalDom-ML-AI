@@ -37,7 +37,8 @@ class Renderer:
         self.text = TextLabel()
         self.avatar = Avatar(pygame.image.load(config.assets["pfp"]).convert_alpha(),
                              pygame.image.load(config.assets["pfp_border"]).convert_alpha())
-        self.buttons = {"mode": ToggleButton("Manual", "Auto", (80, 470))}
+        self.buttons = {"mode": ToggleButton("Auto", "Manual", (80, 470)),
+                        "2x": ToggleButton("2x", "2x", (240, 470), (50,50))}
 
         self.auto = True
 
@@ -85,34 +86,57 @@ class Renderer:
     def draw_board(self, screen, ui_state=None):
         screen.fill((255, 255, 255))
         screen.blit(self.board, (0, 0))
-    
+
+        tooltip = pygame.image.load(self.assets["tooltip"]).convert_alpha()
+        for i in range(len(self.init["players"])):
+            y = 50 + 80*i 
+            screen.blit(tooltip, (724, y-30))
+            self.avatar.draw(screen, color=self.player_colors[i], pos=(730,y))
 
         if ui_state:
+            players = ui_state["players"]
+            selected = ui_state["highlights"]["selected"]
+            target = ui_state["highlights"]["target"]
             for terr_name, terr_data in ui_state["territories"].items():
                 self.draw_territory(screen, terr_name, terr_data)
-            if ui_state["highlights"]["selected"]:
-                self.draw_hover(screen, ui_state["highlights"]["selected"]["territory"])
-            if ui_state["highlights"]["target"]:
-                self.draw_hover(screen, ui_state["highlights"]["target"]["territory"])
+            if selected:
+                self.draw_hover(screen, selected["territory"])
+                self.draw_troop_change(screen, selected)
+            if target:
+                self.draw_hover(screen, target["territory"])
+                self.draw_troop_change(screen, target)
             arrow = pygame.image.load(self.assets["arrow"]).convert_alpha()
             y = 37 + 80*ui_state["current_player_index"]
             screen.blit(arrow, (670,y))
+            for i, player in enumerate(players):
+                y = 37 + 80*i
+                self.text.draw(screen, str(player["armies"]), (780, y))
+                self.text.draw(screen, str(player["territories"]), (780, y+28))
+
 
         if self.hovered_territory:
             self.draw_hover(screen, self.hovered_territory)
 
-        for i in range(len(self.init["players"])):
-            y = 50 + 80*i 
-            self.avatar.draw(screen, color=self.player_colors[i], pos=(730,y))
         
         self.buttons["mode"].draw(screen)
+        if self.auto:
+            self.buttons["2x"].draw(screen)
+
+    def draw_troop_change(self, screen, terr_data):
+        amount = terr_data["change"]
+        if terr_data["change"] == 0:
+            return
         
+        label_pos = self.territory_ui[terr_data["territory"]]["label_pos"]
+        label_pos = (label_pos[0]-5, label_pos[1]-15)
+
+        color = self.player_colors[terr_data["owner_index"]]
+        text = "+" + str(amount) if amount > 0 else str(amount)
+            
+        self.text.draw(screen, text, label_pos, color)
 
     def draw_territory(self, screen, territory_name, terr_data):
         """Draws army count + ownership color on a territory"""
-        if territory_name not in self.territory_ui:
-            return
-
         label_pos = self.territory_ui[territory_name]["label_pos"]
         owner_index = terr_data.get("owner_index", None)
 
@@ -153,3 +177,4 @@ class Renderer:
         mode = self.buttons["mode"]
         if mode.handle_event(event):
             self.auto = False if mode.state else True
+        self.buttons["2x"].handle_event(event)

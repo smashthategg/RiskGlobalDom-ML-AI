@@ -25,10 +25,12 @@ ui_state = {
     "highlights": {
         "selected": {
             "territory": "Alaska", # can be none
+            "owner_index": 0,
             "change": 3 # 0 if no change, negative if a battle loss
         },
         "target": {
             "territory": "Northwest Territory", # destination for attack/fortify. can be None
+            "owner_index": 0,
             "change": 2
         } 
     },

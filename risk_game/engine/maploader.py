@@ -4,49 +4,44 @@ maploader.py
 Module responsible for loading the map data for a RISK game from a JSON file.
 
 Functions:
-    load_map(path): Loads and returns Territory and Continent objects from the given JSON file.
+    load_map(path): Loads and returns dictionary from the given JSON file.
+    build_map_objects(territory_data, continent_data): Converts raw dictionary (String) to Territory/Continent objects
 """
 
 import json, os
 from risk_game.engine.structures import Territory, Continent
 
-def load_map(path):
+def load_map_json(path):
     """
-    Loads map data from a JSON file and constructs Territory and Continent objects.
-
-    The JSON file is expected to have the following structure:
-    {
-        "territories": {
-            "TerritoryName": {
-                "continent": "ContinentName",
-                "neighbors": ["Neighbor1", "Neighbor2", ...]
-            },
-            ...
-        },
-        "continents": {
-            "ContinentName": {
-                "bonus": int,
-                "territories": ["Territory1", "Territory2", ...]
-            },
-            ...
-        }
-    }
+    Loads JSON map data and returns raw dictionaries for territories and continents.
 
     Args:
-        path (str): The file path to the JSON map data.
+        path (str): File path relative to this script.
 
     Returns:
-        tuple: (territories, continents)
-            - territories (list[Territory]): List of Territory objects with neighbor references.
-            - continents (list[Continent]): List of Continent objects with linked territories.
+        map_data (dict): {"territories": {...} , "continents": {...} }
     """
     base_dir = os.path.dirname(__file__)
     full_path = os.path.join(base_dir, path)
     with open(full_path, "r") as f:
         map_data = json.load(f)
 
-    territory_data = map_data["territories"]
-    continent_data = map_data["continents"]
+    return map_data
+
+
+def build_map_objects(map_data):
+    """
+    Converts raw map dictionaries into Territory and Continent objects with proper references.
+
+    Args:
+        map_data (dict): from load_map()
+
+    Returns:
+        tuple: (territories, continents)
+            - territories (list of Territory)
+            - continents (list of Continent)
+    """
+    territory_data, continent_data = map_data["territories"], map_data["continents"]
 
     # Step 1: Create Territory objects with neighbor names (temporarily)
     territories = {}
@@ -61,7 +56,7 @@ def load_map(path):
     for territory in territories.values():
         territory.neighbors = [territories[n_name] for n_name in territory.neighbors]
 
-    # Step 3: Create Continent objects with references to Territory objects
+    # Step 3: Create Continent objects
     continents = {}
     for name, info in continent_data.items():
         continent_territories = [territories[t_name] for t_name in info["territories"]]
@@ -72,3 +67,4 @@ def load_map(path):
         )
 
     return list(territories.values()), list(continents.values())
+

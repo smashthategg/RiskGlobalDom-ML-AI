@@ -499,7 +499,7 @@ class Player:
                 print("[ERROR] Invalid input. Please enter valid card indices separated by spaces.")
                 continue
 
-            if not self.is_valid_set(chosen_set):
+            if not self.validate_card_set(chosen_set):
                 print("[INFO] Chosen cards do not form a valid set. Try again.")
                 continue
             else:

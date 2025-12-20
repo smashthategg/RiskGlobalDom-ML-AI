@@ -4,12 +4,10 @@ Trying to make a bot capable of playing the game of RISK: Global Domination at a
 
 More or less finished building a simplified Python implementation of the game.
 
-**If anyone is interested in building a GUI for this please message me**
-
 To do:
-- (combat.py) Add Balanced Blitz combat and probability engines
 - (structures.py) Integrate probability engines into attack prompts for users.
-
+- Continue the reinforcement learning implementation (action encoder)
+- 
 ## Features
 
 - Map loading from JSON (supports continents, territories, neighbor links)

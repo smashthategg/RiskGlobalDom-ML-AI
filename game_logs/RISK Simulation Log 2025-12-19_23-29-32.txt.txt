@@ -1,0 +1,270 @@
+--- Game started. ---
+[GAME] P3 received G.
+[GAME] P3 received C.
+[GAME] P3 received E.
+[GAME] P3 received H.
+[GAME] P2 received D.
+[GAME] P2 received J.
+[GAME] P2 received A.
+[GAME] P1 received F.
+[GAME] P1 received I.
+[GAME] P1 received B.
+
+[INFO] A (P2, 3 armies)
+[INFO] B (P1, 4 armies)
+[INFO] C (P3, 2 armies)
+[INFO] D (P2, 4 armies)
+[INFO] E (P3, 3 armies)
+[INFO] F (P1, 3 armies)
+[INFO] G (P3, 2 armies)
+[INFO] H (P3, 3 armies)
+[INFO] I (P1, 3 armies)
+[INFO] J (P2, 3 armies)
+[INFO] P3 has 10 troops, 4 territories, and 0 cards.
+[INFO] P2 has 10 troops, 3 territories, and 0 cards.
+[INFO] P1 has 10 troops, 3 territories, and 0 cards.
+
+--- Round 1: P3's turn ---
+[DRAFT] P3 received 3 troops with 4 territories.
+[DRAFT] P3 placed 3 troops in E (P3, 6 armies).
+[ATTACK] P3 attacked F (P1, 3 armies) from E (P3, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 2 | 3
+[ATTACK] Remaining troops: 4 | 0
+[ATTACK] P3 captured F and moved in 3 troops!
+[ATTACK] P3 ended the attack phase.
+[FORTIFY] P3 skipped the fortify phase.
+[GAME] P3 received a card: Card(type=Infantry, territory=G).
+[END] P3 has 11 troops, 5 territories, and 1 cards.
+
+--- Round 1: P2's turn ---
+[DRAFT] P2 received 3 troops with 3 territories.
+[DRAFT] P2 placed 3 troops in D (P2, 7 armies).
+[ATTACK] P2 attacked E (P3, 1 armies) from D (P2, 7 armies) with 6 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 6 | 0
+[ATTACK] P2 captured E and moved in 5 troops!
+[ATTACK] P2 attacked F (P3, 3 armies) from E (P2, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 4 | 1
+[ATTACK] Remaining troops: 1 | 2
+[ATTACK] P2 ended the attack phase.
+[FORTIFY] P2 skipped the fortify phase.
+[GAME] P2 received a card: Card(type=Artillery, territory=A).
+[END] P2 has 8 troops, 4 territories, and 1 cards.
+
+--- Round 1: P1's turn ---
+[DRAFT] P1 received 4 troops with 2 territories.
+[DRAFT] P1 placed 4 troops in B (P1, 8 armies).
+[ATTACK] P1 attacked E (P2, 1 armies) from B (P1, 8 armies) with 7 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 7 | 0
+[ATTACK] P1 captured E and moved in 6 troops!
+[ATTACK] P1 attacked D (P2, 1 armies) from E (P1, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 5 | 0
+[ATTACK] P1 captured D and moved in 4 troops!
+[ATTACK] P1 attacked G (P3, 2 armies) from D (P1, 4 armies) with 3 troops.
+[ATTACK] Lost troops: 2 | 2
+[ATTACK] Remaining troops: 2 | 0
+[ATTACK] P1 captured G and moved in 1 troops!
+[ATTACK] P1 ended the attack phase.
+[FORTIFY] P1 skipped the fortify phase.
+[GAME] P1 received a card: Card(type=Artillery, territory=H).
+[END] P1 has 7 troops, 5 territories, and 1 cards.
+
+[INFO] A (P2, 3 armies)
+[INFO] B (P1, 1 armies)
+[INFO] C (P3, 2 armies)
+[INFO] D (P1, 1 armies)
+[INFO] E (P1, 1 armies)
+[INFO] F (P3, 2 armies)
+[INFO] G (P1, 1 armies)
+[INFO] H (P3, 3 armies)
+[INFO] I (P1, 3 armies)
+[INFO] J (P2, 3 armies)
+[INFO] P3 has 7 troops, 3 territories, and 1 cards.
+[INFO] P2 has 6 troops, 2 territories, and 1 cards.
+[INFO] P1 has 7 troops, 5 territories, and 1 cards.
+
+--- Round 2: P3's turn ---
+[DRAFT] P3 received 3 troops with 3 territories.
+[DRAFT] P3 placed 3 troops in H (P3, 6 armies).
+[ATTACK] P3 attacked G (P1, 1 armies) from H (P3, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 6 | 0
+[ATTACK] P3 captured G and moved in 5 troops!
+[ATTACK] P3 attacked D (P1, 1 armies) from G (P3, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 2 | 1
+[ATTACK] Remaining troops: 3 | 0
+[ATTACK] P3 captured D and moved in 2 troops!
+[ATTACK] P3 ended the attack phase.
+[FORTIFY] P3 skipped the fortify phase.
+[GAME] P3 received a card: Card(type=Infantry, territory=B).
+[END] P3 has 8 troops, 5 territories, and 2 cards.
+
+--- Round 2: P2's turn ---
+[DRAFT] P2 received 3 troops with 2 territories.
+[DRAFT] P2 placed 3 troops in J (P2, 6 armies).
+[ATTACK] P2 attacked F (P3, 2 armies) from J (P2, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 2 | 2
+[ATTACK] Remaining troops: 4 | 0
+[ATTACK] P2 captured F and moved in 3 troops!
+[ATTACK] P2 attacked B (P1, 1 armies) from A (P2, 3 armies) with 2 troops.
+[ATTACK] Lost troops: 2 | 0
+[ATTACK] Remaining troops: 1 | 1
+[ATTACK] P2 attacked E (P1, 1 armies) from F (P2, 3 armies) with 2 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 3 | 0
+[ATTACK] P2 captured E and moved in 2 troops!
+[ATTACK] P2 ended the attack phase.
+[FORTIFY] P2 skipped the fortify phase.
+[GAME] P2 received a card: Card(type=Artillery, territory=D).
+[END] P2 has 5 troops, 4 territories, and 2 cards.
+
+--- Round 2: P1's turn ---
+[DRAFT] P1 received 3 troops with 2 territories.
+[DRAFT] P1 placed 3 troops in I (P1, 6 armies).
+[ATTACK] P1 attacked H (P3, 1 armies) from I (P1, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 6 | 0
+[ATTACK] P1 captured H and moved in 5 troops!
+[ATTACK] P1 attacked G (P3, 1 armies) from H (P1, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 4 | 0
+[ATTACK] P1 captured G and moved in 3 troops!
+[ATTACK] P1 ended the attack phase.
+[FORTIFY] P1 skipped the fortify phase.
+[GAME] P1 received a card: Card(type=Artillery, territory=I).
+[END] P1 has 6 troops, 4 territories, and 2 cards.
+
+[INFO] A (P2, 1 armies)
+[INFO] B (P1, 1 armies)
+[INFO] C (P3, 2 armies)
+[INFO] D (P3, 2 armies)
+[INFO] E (P2, 2 armies)
+[INFO] F (P2, 1 armies)
+[INFO] G (P1, 3 armies)
+[INFO] H (P1, 1 armies)
+[INFO] I (P1, 1 armies)
+[INFO] J (P2, 1 armies)
+[INFO] P3 has 4 troops, 2 territories, and 2 cards.
+[INFO] P2 has 5 troops, 4 territories, and 2 cards.
+[INFO] P1 has 6 troops, 4 territories, and 2 cards.
+
+--- Round 3: P3's turn ---
+[DRAFT] P3 received 3 troops with 2 territories.
+[DRAFT] P3 placed 3 troops in C (P3, 5 armies).
+[ATTACK] P3 attacked B (P1, 1 armies) from C (P3, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 5 | 0
+[ATTACK] P3 captured B and moved in 4 troops!
+[ATTACK] P3 attacked A (P2, 1 armies) from B (P3, 4 armies) with 3 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 4 | 0
+[ATTACK] P3 captured A and moved in 3 troops!
+[ATTACK] P3 ended the attack phase.
+[FORTIFY] P3 fortified 2 troops from A (P3, 1 armies) to C (P3, 3 armies).
+[GAME] P3 received a card: Card(type=Cavalry, territory=E).
+[END] P3 has 7 troops, 4 territories, and 3 cards.
+
+--- Round 3: P2's turn ---
+[DRAFT] P2 received 3 troops with 3 territories.
+[DRAFT] P2 placed 3 troops in E (P2, 5 armies).
+[ATTACK] P2 attacked B (P3, 1 armies) from E (P2, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 4 | 0
+[ATTACK] P2 captured B and moved in 3 troops!
+[ATTACK] P2 attacked A (P3, 1 armies) from B (P2, 3 armies) with 2 troops.
+[ATTACK] Lost troops: 2 | 0
+[ATTACK] Remaining troops: 1 | 1
+[ATTACK] P2 ended the attack phase.
+[FORTIFY] P2 skipped the fortify phase.
+[GAME] P2 received a card: Card(type=Cavalry, territory=C).
+[END] P2 has 4 troops, 4 territories, and 3 cards.
+
+--- Round 3: P1's turn ---
+[DRAFT] P1 received 3 troops with 3 territories.
+[DRAFT] P1 placed 3 troops in G (P1, 6 armies).
+[ATTACK] P1 attacked D (P3, 2 armies) from G (P1, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 0 | 2
+[ATTACK] Remaining troops: 6 | 0
+[ATTACK] P1 captured D and moved in 5 troops!
+[ATTACK] P1 attacked E (P2, 1 armies) from D (P1, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 2 | 1
+[ATTACK] Remaining troops: 3 | 0
+[ATTACK] P1 captured E and moved in 2 troops!
+[ATTACK] P1 ended the attack phase.
+[FORTIFY] P1 skipped the fortify phase.
+[GAME] P1 received a card: Card(type=Artillery, territory=J).
+[END] P1 has 6 troops, 5 territories, and 3 cards.
+
+[INFO] A (P3, 1 armies)
+[INFO] B (P2, 1 armies)
+[INFO] C (P3, 3 armies)
+[INFO] D (P1, 1 armies)
+[INFO] E (P1, 2 armies)
+[INFO] F (P2, 1 armies)
+[INFO] G (P1, 1 armies)
+[INFO] H (P1, 1 armies)
+[INFO] I (P1, 1 armies)
+[INFO] J (P2, 1 armies)
+[INFO] P3 has 4 troops, 2 territories, and 3 cards.
+[INFO] P2 has 3 troops, 3 territories, and 3 cards.
+[INFO] P1 has 6 troops, 5 territories, and 3 cards.
+
+--- Round 4: P3's turn ---
+[DRAFT] P3 received 3 troops with 2 territories.
+[DRAFT] P3 placed 3 troops in C (P3, 6 armies).
+[ATTACK] P3 attacked B (P2, 1 armies) from C (P3, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 6 | 0
+[ATTACK] P3 captured B and moved in 5 troops!
+[ATTACK] P3 attacked E (P1, 2 armies) from B (P3, 5 armies) with 4 troops.
+[ATTACK] Lost troops: 4 | 1
+[ATTACK] Remaining troops: 1 | 1
+[ATTACK] P3 ended the attack phase.
+[FORTIFY] P3 skipped the fortify phase.
+[GAME] P3 received a card: Card(type=Artillery, territory=F).
+[END] P3 has 3 troops, 3 territories, and 4 cards.
+
+--- Round 4: P2's turn ---
+[DRAFT] P2 received 3 troops with 2 territories.
+[DRAFT] P2 placed 3 troops in J (P2, 4 armies).
+[ATTACK] P2 attacked I (P1, 1 armies) from J (P2, 4 armies) with 3 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 3 | 0
+[ATTACK] P2 captured I and moved in 2 troops!
+[ATTACK] P2 ended the attack phase.
+[FORTIFY] P2 skipped the fortify phase.
+[GAME] P2 received a card: Card(type=Joker).
+[END] P2 has 4 troops, 3 territories, and 4 cards.
+
+--- Round 4: P1's turn ---
+[DRAFT] P1 received 3 troops with 4 territories.
+[DRAFT] P1 traded in cards for 8 bonus troops.
+[DRAFT] P1 placed 11 troops in H (P1, 14 armies).
+[ATTACK] P1 attacked I (P2, 2 armies) from H (P1, 14 armies) with 13 troops.
+[ATTACK] Lost troops: 2 | 2
+[ATTACK] Remaining troops: 12 | 0
+[ATTACK] P1 captured I and moved in 11 troops!
+[ATTACK] P1 attacked J (P2, 1 armies) from I (P1, 11 armies) with 10 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 11 | 0
+[ATTACK] P1 captured J and moved in 10 troops!
+[ATTACK] P1 attacked F (P2, 1 armies) from J (P1, 10 armies) with 9 troops.
+[ATTACK] Lost troops: 1 | 1
+[ATTACK] Remaining troops: 9 | 0
+[GAME] P1 defeated P2, gaining 4 cards.
+[ATTACK] P1 captured F and moved in 8 troops!
+[ATTACK] P1 attacked C (P3, 1 armies) from F (P1, 8 armies) with 7 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 8 | 0
+[ATTACK] P1 captured C and moved in 7 troops!
+[ATTACK] P1 attacked B (P3, 1 armies) from C (P1, 7 armies) with 6 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 7 | 0
+[ATTACK] P1 captured B and moved in 6 troops!
+[ATTACK] P1 attacked A (P3, 1 armies) from B (P1, 6 armies) with 5 troops.
+[ATTACK] Lost troops: 0 | 1
+[ATTACK] Remaining troops: 6 | 0
+[GAME] P1 defeated P3, gaining 4 cards.
+[GAME] P1 wins the game!
